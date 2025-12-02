@@ -5,8 +5,10 @@ import { CartIcon, ImageIcon, PlusIcon, ShoppingBagIcon, TrashIcon, XIcon } from
 import Input from './components/input';
 import Toast from './components/toast';
 import { initialCoupons } from './constants/coupons';
+import { PAGES } from './constants/pages';
 import { initialProducts } from './constants/products';
 import useNotifications from './hooks/notifications';
+import usePage from './hooks/pages';
 import { CartItem } from './types/carts';
 import { Coupon } from './types/coupons';
 import { Product, ProductWithUI } from './types/products';
@@ -49,7 +51,8 @@ const App = () => {
   });
 
   const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const { store, admin } = PAGES;
+  const { switchPage, isCurrentPage } = usePage(store);
   const { notifications, addNotification, removeNotification } = useNotifications();
   const [showCouponForm, setShowCouponForm] = useState(false);
   const [activeTab, setActiveTab] = useState<'products' | 'coupons'>('products');
@@ -82,7 +85,7 @@ const App = () => {
       }
     }
 
-    if (isAdmin) {
+    if (isCurrentPage(admin)) {
       return `${price.toLocaleString()}원`;
     }
 
@@ -362,10 +365,10 @@ const App = () => {
       <Header
         nav={
           <>
-            <Button size='xs' variant={isAdmin ? 'dark' : 'text'} onClick={() => setIsAdmin(!isAdmin)}>
-              {isAdmin ? '쇼핑몰로 돌아가기' : '관리자 페이지로'}
+            <Button size='xs' variant={isCurrentPage(admin) ? 'dark' : 'text'} onClick={() => switchPage(isCurrentPage(admin) ? store : admin)}>
+              {isCurrentPage(admin) ? '쇼핑몰로 돌아가기' : '관리자 페이지로'}
             </Button>
-            {!isAdmin && (
+            {isCurrentPage(store) && (
               <div className='relative '>
                 <CartIcon className='text-gray-700' />
                 {cart.length > 0 && (
@@ -378,11 +381,11 @@ const App = () => {
           </>
         }
       >
-        {!isAdmin && <Input type='search' value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder='상품 검색...' />}
+        {isCurrentPage(store) && <Input type='search' value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder='상품 검색...' />}
       </Header>
 
       <main className='max-w-7xl mx-auto px-4 py-8'>
-        {isAdmin ? (
+        {isCurrentPage(admin) ? (
           <div className='max-w-6xl mx-auto'>
             <div className='mb-8'>
               <h1 className='text-2xl font-bold text-gray-900'>관리자 대시보드</h1>
