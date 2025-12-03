@@ -1,0 +1,218 @@
+import { ChangeEvent, FocusEvent, useEffect } from 'react';
+import Button from '../../../components/button';
+import { XIcon } from '../../../components/icons';
+import Input from '../../../components/input';
+import Label from '../../../components/label';
+import useForm from '../../../hooks/form';
+import { AddNotification } from '../../../hooks/notifications';
+import { ProductFormData, ProductWithUI } from '../../../types/products';
+import { initialForm, PRODUCT_VALIDATION_RULES } from '../constants/products';
+
+interface ProductFormProps {
+  products: ProductWithUI[];
+  editingProduct: string | null;
+  setEditingProduct: (productId: string | null) => void;
+  addProduct: (product: Omit<ProductWithUI, 'id'>) => void;
+  updateProduct: (productId: string, updates: Partial<ProductWithUI>) => void;
+  close: () => void;
+  addNotification: AddNotification;
+}
+
+const ProductForm = ({ products, editingProduct, setEditingProduct, addProduct, updateProduct, close, addNotification }: ProductFormProps) => {
+  const onSubmit = (data: ProductFormData) => {
+    if (editingProduct && editingProduct !== 'new') {
+      updateProduct(editingProduct, data);
+      setEditingProduct(null);
+    } else {
+      addProduct(data);
+    }
+    setEditingProduct(null);
+    close();
+  };
+
+  const { form, setForm, resetForm, handleSubmit } = useForm({ initialForm, onSubmit });
+
+  const handleChange = {
+    name: (e: ChangeEvent<HTMLInputElement>) => setForm({ ...form, name: e.target.value }),
+    description: (e: ChangeEvent<HTMLInputElement>) => setForm({ ...form, description: e.target.value }),
+    price: (e: ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      if (value === '' || /^\d+$/.test(value)) {
+        setForm({ ...form, price: value === '' ? 0 : parseInt(value) });
+      }
+    },
+    stock: (e: ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      if (value === '' || /^\d+$/.test(value)) {
+        setForm({ ...form, stock: value === '' ? 0 : parseInt(value) });
+      }
+    },
+    discountQuantity: (e: ChangeEvent<HTMLInputElement>, index: number) => {
+      const newDiscounts = [...form.discounts];
+      newDiscounts[index].quantity = parseInt(e.target.value) || 0;
+      setForm({ ...form, discounts: newDiscounts });
+    },
+    discountRate: (e: ChangeEvent<HTMLInputElement>, index: number) => {
+      const newDiscounts = [...form.discounts];
+      newDiscounts[index].rate = (parseInt(e.target.value) || 0) / 100;
+      setForm({ ...form, discounts: newDiscounts });
+    }
+  };
+
+  const handleBlur = {
+    price: (e: FocusEvent<HTMLInputElement>) => {
+      const value = parseInt(e.target.value) || 0;
+      const rule = PRODUCT_VALIDATION_RULES.price;
+
+      if (value < rule.min) {
+        addNotification(rule.errorMessage, 'error');
+        setForm({ ...form, price: rule.min });
+      }
+    },
+    stock: (e: FocusEvent<HTMLInputElement>) => {
+      const value = parseInt(e.target.value) || 0;
+      const rule = PRODUCT_VALIDATION_RULES.stock;
+
+      if (value < rule.min) {
+        addNotification(rule.errorMessages.min, 'error');
+        setForm({ ...form, stock: rule.min });
+        return;
+      }
+
+      if (value > rule.max) {
+        addNotification(rule.errorMessages.max, 'error');
+        setForm({ ...form, stock: rule.max });
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (!editingProduct) return;
+    if (editingProduct === 'new') {
+      resetForm();
+      return;
+    }
+
+    const product = products.find(product => product.id === editingProduct);
+    if (!product) return;
+
+    setForm({
+      name: product.name,
+      price: product.price,
+      stock: product.stock,
+      description: product.description || '',
+      discounts: product.discounts || []
+    });
+  }, [editingProduct]);
+
+  return (
+    <div className='p-6 border-t border-gray-200 bg-gray-50'>
+      <form onSubmit={handleSubmit} className='space-y-4'>
+        <h3 className='text-lg font-medium text-gray-900'>{editingProduct === 'new' ? '새 상품 추가' : '상품 수정'}</h3>
+        <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
+          <div>
+            <Label>상품명</Label>
+            <Input type='text' value={form.name} onChange={handleChange.name} required />
+          </div>
+          <div>
+            <Label>설명</Label>
+            <Input type='text' value={form.description} onChange={handleChange.description} />
+          </div>
+          <div>
+            <Label>가격</Label>
+            <Input
+              type='text'
+              value={form.price === 0 ? '' : form.price}
+              onChange={handleChange.price}
+              onBlur={handleBlur.price}
+              placeholder='숫자만 입력'
+              required
+            />
+          </div>
+          <div>
+            <Label>재고</Label>
+            <Input
+              type='text'
+              value={form.stock === 0 ? '' : form.stock}
+              onChange={handleChange.stock}
+              onBlur={handleBlur.stock}
+              placeholder='숫자만 입력'
+              required
+            />
+          </div>
+        </div>
+        <div className='mt-4'>
+          <Label className='mb-2'>할인 정책</Label>
+          <div className='space-y-2'>
+            {form.discounts.map((discount, index) => (
+              <div key={index} className='flex items-center gap-2 bg-gray-50 p-2 rounded'>
+                <Input
+                  type='number'
+                  value={discount.quantity}
+                  onChange={e => handleChange.discountQuantity(e, index)}
+                  className='w-20'
+                  min='1'
+                  placeholder='수량'
+                />
+                <span className='text-sm'>개 이상 구매 시</span>
+                <Input
+                  type='number'
+                  value={discount.rate * 100}
+                  onChange={e => handleChange.discountRate(e, index)}
+                  className='w-16'
+                  min='0'
+                  max='100'
+                  placeholder='%'
+                />
+                <span className='text-sm'>% 할인</span>
+                <Button
+                  variant='destructive'
+                  type='button'
+                  onClick={() => {
+                    const newDiscounts = form.discounts.filter((_, i) => i !== index);
+                    setForm({ ...form, discounts: newDiscounts });
+                  }}
+                >
+                  <XIcon />
+                </Button>
+              </div>
+            ))}
+            <Button
+              variant='subtle'
+              type='button'
+              onClick={() =>
+                setForm({
+                  ...form,
+                  discounts: [...form.discounts, { quantity: 10, rate: 0.1 }]
+                })
+              }
+              className='text-sm'
+            >
+              + 할인 추가
+            </Button>
+          </div>
+        </div>
+
+        <div className='flex justify-end gap-3'>
+          <Button
+            size='md'
+            variant='outline'
+            type='button'
+            onClick={() => {
+              setEditingProduct(null);
+              resetForm();
+              close();
+            }}
+          >
+            취소
+          </Button>
+          <Button size='md' variant='primary' type='submit'>
+            {editingProduct === 'new' ? '추가' : '수정'}
+          </Button>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+export default ProductForm;

@@ -16,6 +16,6 @@ export interface ProductWithUI extends Product {
   isRecommended?: boolean;
 }
 
-export interface ProductForm extends Omit<Product, 'id'> {
+export interface ProductFormData extends Omit<Product, 'id'> {
   description: string;
 }
