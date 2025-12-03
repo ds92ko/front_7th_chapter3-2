@@ -7,6 +7,7 @@ import Toast from './components/toast';
 import { initialCoupons } from './constants/coupons';
 import { PAGES } from './constants/pages';
 import { initialProducts } from './constants/products';
+import useLocalStorage from './hooks/local-storage';
 import useNotifications from './hooks/notifications';
 import usePage from './hooks/pages';
 import AdminPage from './pages/admin';
@@ -16,39 +17,9 @@ import { Coupon } from './types/coupons';
 import { ProductWithUI } from './types/products';
 
 const App = () => {
-  const [products, setProducts] = useState<ProductWithUI[]>(() => {
-    const saved = localStorage.getItem('products');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        return initialProducts;
-      }
-    }
-    return initialProducts;
-  });
-  const [cart, setCart] = useState<CartItem[]>(() => {
-    const saved = localStorage.getItem('cart');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        return [];
-      }
-    }
-    return [];
-  });
-  const [coupons, setCoupons] = useState<Coupon[]>(() => {
-    const saved = localStorage.getItem('coupons');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        return initialCoupons;
-      }
-    }
-    return initialCoupons;
-  });
+  const [products, setProducts] = useLocalStorage<ProductWithUI[]>('products', initialProducts);
+  const [cart, setCart] = useLocalStorage<CartItem[]>('cart', []);
+  const [coupons, setCoupons] = useLocalStorage<Coupon[]>('coupons', initialCoupons);
   const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
   const { store, admin } = PAGES;
   const { currentPage, switchPage, isCurrentPage } = usePage(store);
@@ -60,19 +31,6 @@ const App = () => {
   useEffect(() => {
     const count = cart.reduce((sum, item) => sum + item.quantity, 0);
     setTotalItemCount(count);
-  }, [cart]);
-  useEffect(() => {
-    localStorage.setItem('products', JSON.stringify(products));
-  }, [products]);
-  useEffect(() => {
-    localStorage.setItem('coupons', JSON.stringify(coupons));
-  }, [coupons]);
-  useEffect(() => {
-    if (cart.length > 0) {
-      localStorage.setItem('cart', JSON.stringify(cart));
-    } else {
-      localStorage.removeItem('cart');
-    }
   }, [cart]);
   useEffect(() => {
     const timer = setTimeout(() => {
