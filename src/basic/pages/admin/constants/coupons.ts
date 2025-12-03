@@ -31,4 +31,4 @@ export const initialForm: Coupon = {
   code: '',
   discountType: DISCOUNT_TYPES.amount,
   discountValue: 0
-};
+} as const;
