@@ -1,10 +1,12 @@
 import { useCallback } from 'react';
 import Button from '../../components/button';
 import { ImageIcon, ShoppingBagIcon, XIcon } from '../../components/icons';
+import Select from '../../components/select';
 import { AddNotification } from '../../hooks/notifications';
 import { CartItem } from '../../types/carts';
 import { Coupon } from '../../types/coupons';
 import { Product, ProductWithUI } from '../../types/products';
+import { formatPrice } from '../../utils/format';
 
 interface StorePageProps {
   products: ProductWithUI[];
@@ -32,16 +34,7 @@ const StorePage = ({ products, debouncedSearchTerm, cart, setCart, coupons, sele
 
     return remaining;
   };
-  const formatPrice = (price: number, productId?: string): string => {
-    if (productId) {
-      const product = products.find(p => p.id === productId);
-      if (product && getRemainingStock(product) <= 0) {
-        return 'SOLD OUT';
-      }
-    }
 
-    return `₩${price.toLocaleString()}`;
-  };
   const getMaxApplicableDiscount = (item: CartItem): number => {
     const { discounts } = item.product;
     const { quantity } = item;
@@ -206,7 +199,12 @@ const StorePage = ({ products, debouncedSearchTerm, cart, setCart, coupons, sele
 
                       {/* 가격 정보 */}
                       <div className='mb-3'>
-                        <p className='text-lg font-bold text-gray-900'>{formatPrice(product.price, product.id)}</p>
+                        <p className='text-lg font-bold text-gray-900'>
+                          {formatPrice(product.price, {
+                            prefix: '₩',
+                            isSoldOut: getRemainingStock(product) <= 0
+                          })}
+                        </p>
                         {product.discounts.length > 0 && (
                           <p className='text-xs text-gray-500'>
                             {product.discounts[0].quantity}개 이상 구매시 할인 {product.discounts[0].rate * 100}%
@@ -298,22 +296,23 @@ const StorePage = ({ products, debouncedSearchTerm, cart, setCart, coupons, sele
                   <h3 className='text-sm font-semibold text-gray-700'>쿠폰 할인</h3>
                 </div>
                 {coupons.length > 0 && (
-                  <select
-                    className='w-full text-sm border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500'
+                  <Select
                     value={selectedCoupon?.code || ''}
                     onChange={e => {
                       const coupon = coupons.find(c => c.code === e.target.value);
                       if (coupon) applyCoupon(coupon);
                       else setSelectedCoupon(null);
                     }}
-                  >
-                    <option value=''>쿠폰 선택</option>
-                    {coupons.map(coupon => (
-                      <option key={coupon.code} value={coupon.code}>
-                        {coupon.name} ({coupon.discountType === 'amount' ? `${coupon.discountValue.toLocaleString()}원` : `${coupon.discountValue}%`})
-                      </option>
-                    ))}
-                  </select>
+                    options={[
+                      { label: '쿠폰 선택', value: '' },
+                      ...coupons.map(coupon => ({
+                        label: `${coupon.name} (${
+                          coupon.discountType === 'amount' ? `${coupon.discountValue.toLocaleString()}원` : `${coupon.discountValue}%`
+                        })`,
+                        value: coupon.code
+                      }))
+                    ]}
+                  />
                 )}
               </section>
 
