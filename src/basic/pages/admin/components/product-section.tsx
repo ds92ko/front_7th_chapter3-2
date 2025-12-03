@@ -3,8 +3,12 @@ import Button from '../../../components/button';
 import { XIcon } from '../../../components/icons';
 import Input from '../../../components/input';
 import Label from '../../../components/label';
+import useForm from '../../../hooks/form';
 import { AddNotification } from '../../../hooks/notifications';
-import { ProductWithUI } from '../../../types/products';
+import useToggle from '../../../hooks/toggle';
+import { ProductForm, ProductWithUI } from '../../../types/products';
+import { formatPrice } from '../../../utils/format';
+import { initialForm } from '../constants/products';
 
 interface ProductSectionProps {
   products: ProductWithUI[];
@@ -15,51 +19,32 @@ interface ProductSectionProps {
 }
 
 const ProductSection = ({ products, addProduct, updateProduct, deleteProduct, addNotification }: ProductSectionProps) => {
-  const [showProductForm, setShowProductForm] = useState(false);
+  const { isOpen, open, close } = useToggle(false);
   const [editingProduct, setEditingProduct] = useState<string | null>(null);
-  const [productForm, setProductForm] = useState({
-    name: '',
-    price: 0,
-    stock: 0,
-    description: '',
-    discounts: [] as Array<{ quantity: number; rate: number }>
-  });
 
-  const formatPrice = (price: number, productId?: string): string => {
-    if (productId) {
-      const product = products.find(p => p.id === productId);
-      if (product && product.stock <= 0) {
-        return 'SOLD OUT';
-      }
-    }
-
-    return `${price.toLocaleString()}원`;
-  };
-  const handleProductSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = (data: ProductForm) => {
     if (editingProduct && editingProduct !== 'new') {
-      updateProduct(editingProduct, productForm);
+      updateProduct(editingProduct, data);
       setEditingProduct(null);
     } else {
-      addProduct({
-        ...productForm,
-        discounts: productForm.discounts
-      });
+      addProduct(data);
     }
-    setProductForm({ name: '', price: 0, stock: 0, description: '', discounts: [] });
     setEditingProduct(null);
-    setShowProductForm(false);
+    close();
   };
+
+  const { form, setForm, resetForm, handleSubmit } = useForm({ initialForm, onSubmit });
+
   const startEditProduct = (product: ProductWithUI) => {
     setEditingProduct(product.id);
-    setProductForm({
+    setForm({
       name: product.name,
       price: product.price,
       stock: product.stock,
       description: product.description || '',
       discounts: product.discounts || []
     });
-    setShowProductForm(true);
+    open();
   };
 
   return (
@@ -72,8 +57,8 @@ const ProductSection = ({ products, addProduct, updateProduct, deleteProduct, ad
             variant='dark'
             onClick={() => {
               setEditingProduct('new');
-              setProductForm({ name: '', price: 0, stock: 0, description: '', discounts: [] });
-              setShowProductForm(true);
+              resetForm();
+              open();
             }}
           >
             새 상품 추가
@@ -96,7 +81,12 @@ const ProductSection = ({ products, addProduct, updateProduct, deleteProduct, ad
             {products.map(product => (
               <tr key={product.id} className='hover:bg-gray-50'>
                 <td className='px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900'>{product.name}</td>
-                <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>{formatPrice(product.price, product.id)}</td>
+                <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
+                  {formatPrice(product.price, {
+                    suffix: '원',
+                    isSoldOut: product.stock <= 0
+                  })}
+                </td>
                 <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -124,37 +114,37 @@ const ProductSection = ({ products, addProduct, updateProduct, deleteProduct, ad
           </tbody>
         </table>
       </div>
-      {showProductForm && (
+      {isOpen && (
         <div className='p-6 border-t border-gray-200 bg-gray-50'>
-          <form onSubmit={handleProductSubmit} className='space-y-4'>
+          <form onSubmit={handleSubmit} className='space-y-4'>
             <h3 className='text-lg font-medium text-gray-900'>{editingProduct === 'new' ? '새 상품 추가' : '상품 수정'}</h3>
             <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
               <div>
                 <Label>상품명</Label>
-                <Input type='text' value={productForm.name} onChange={e => setProductForm({ ...productForm, name: e.target.value })} required />
+                <Input type='text' value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required />
               </div>
               <div>
                 <Label>설명</Label>
-                <Input type='text' value={productForm.description} onChange={e => setProductForm({ ...productForm, description: e.target.value })} />
+                <Input type='text' value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
               </div>
               <div>
                 <Label>가격</Label>
                 <Input
                   type='text'
-                  value={productForm.price === 0 ? '' : productForm.price}
+                  value={form.price === 0 ? '' : form.price}
                   onChange={e => {
                     const value = e.target.value;
                     if (value === '' || /^\d+$/.test(value)) {
-                      setProductForm({ ...productForm, price: value === '' ? 0 : parseInt(value) });
+                      setForm({ ...form, price: value === '' ? 0 : parseInt(value) });
                     }
                   }}
                   onBlur={e => {
                     const value = e.target.value;
                     if (value === '') {
-                      setProductForm({ ...productForm, price: 0 });
+                      setForm({ ...form, price: 0 });
                     } else if (parseInt(value) < 0) {
                       addNotification('가격은 0보다 커야 합니다', 'error');
-                      setProductForm({ ...productForm, price: 0 });
+                      setForm({ ...form, price: 0 });
                     }
                   }}
                   placeholder='숫자만 입력'
@@ -165,23 +155,23 @@ const ProductSection = ({ products, addProduct, updateProduct, deleteProduct, ad
                 <Label>재고</Label>
                 <Input
                   type='text'
-                  value={productForm.stock === 0 ? '' : productForm.stock}
+                  value={form.stock === 0 ? '' : form.stock}
                   onChange={e => {
                     const value = e.target.value;
                     if (value === '' || /^\d+$/.test(value)) {
-                      setProductForm({ ...productForm, stock: value === '' ? 0 : parseInt(value) });
+                      setForm({ ...form, stock: value === '' ? 0 : parseInt(value) });
                     }
                   }}
                   onBlur={e => {
                     const value = e.target.value;
                     if (value === '') {
-                      setProductForm({ ...productForm, stock: 0 });
+                      setForm({ ...form, stock: 0 });
                     } else if (parseInt(value) < 0) {
                       addNotification('재고는 0보다 커야 합니다', 'error');
-                      setProductForm({ ...productForm, stock: 0 });
+                      setForm({ ...form, stock: 0 });
                     } else if (parseInt(value) > 9999) {
                       addNotification('재고는 9999개를 초과할 수 없습니다', 'error');
-                      setProductForm({ ...productForm, stock: 9999 });
+                      setForm({ ...form, stock: 9999 });
                     }
                   }}
                   placeholder='숫자만 입력'
@@ -192,15 +182,15 @@ const ProductSection = ({ products, addProduct, updateProduct, deleteProduct, ad
             <div className='mt-4'>
               <Label>할인 정책</Label>
               <div className='space-y-2'>
-                {productForm.discounts.map((discount, index) => (
+                {form.discounts.map((discount, index) => (
                   <div key={index} className='flex items-center gap-2 bg-gray-50 p-2 rounded'>
                     <Input
                       type='number'
                       value={discount.quantity}
                       onChange={e => {
-                        const newDiscounts = [...productForm.discounts];
+                        const newDiscounts = [...form.discounts];
                         newDiscounts[index].quantity = parseInt(e.target.value) || 0;
-                        setProductForm({ ...productForm, discounts: newDiscounts });
+                        setForm({ ...form, discounts: newDiscounts });
                       }}
                       className='w-20'
                       min='1'
@@ -211,9 +201,9 @@ const ProductSection = ({ products, addProduct, updateProduct, deleteProduct, ad
                       type='number'
                       value={discount.rate * 100}
                       onChange={e => {
-                        const newDiscounts = [...productForm.discounts];
+                        const newDiscounts = [...form.discounts];
                         newDiscounts[index].rate = (parseInt(e.target.value) || 0) / 100;
-                        setProductForm({ ...productForm, discounts: newDiscounts });
+                        setForm({ ...form, discounts: newDiscounts });
                       }}
                       className='w-16'
                       min='0'
@@ -225,8 +215,8 @@ const ProductSection = ({ products, addProduct, updateProduct, deleteProduct, ad
                       variant='destructive'
                       type='button'
                       onClick={() => {
-                        const newDiscounts = productForm.discounts.filter((_, i) => i !== index);
-                        setProductForm({ ...productForm, discounts: newDiscounts });
+                        const newDiscounts = form.discounts.filter((_, i) => i !== index);
+                        setForm({ ...form, discounts: newDiscounts });
                       }}
                     >
                       <XIcon />
@@ -237,9 +227,9 @@ const ProductSection = ({ products, addProduct, updateProduct, deleteProduct, ad
                   variant='subtle'
                   type='button'
                   onClick={() => {
-                    setProductForm({
-                      ...productForm,
-                      discounts: [...productForm.discounts, { quantity: 10, rate: 0.1 }]
+                    setForm({
+                      ...form,
+                      discounts: [...form.discounts, { quantity: 10, rate: 0.1 }]
                     });
                   }}
                   className='text-sm'
@@ -256,8 +246,8 @@ const ProductSection = ({ products, addProduct, updateProduct, deleteProduct, ad
                 type='button'
                 onClick={() => {
                   setEditingProduct(null);
-                  setProductForm({ name: '', price: 0, stock: 0, description: '', discounts: [] });
-                  setShowProductForm(false);
+                  resetForm();
+                  close();
                 }}
               >
                 취소

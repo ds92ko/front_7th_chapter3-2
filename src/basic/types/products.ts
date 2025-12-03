@@ -1,4 +1,4 @@
-interface Discount {
+export interface Discount {
   quantity: number;
   rate: number;
 }
@@ -14,4 +14,8 @@ export interface Product {
 export interface ProductWithUI extends Product {
   description?: string;
   isRecommended?: boolean;
+}
+
+export interface ProductForm extends Omit<Product, 'id'> {
+  description: string;
 }
