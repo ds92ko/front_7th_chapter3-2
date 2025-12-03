@@ -15,7 +15,7 @@ export const DISCOUNT_TYPE_PLACEHOLDERS = {
   [DISCOUNT_TYPES.percentage]: '10'
 } as const;
 
-export const DISCOUNT_VALUE_CONSTRAINTS = {
+export const COUPON_VALIDATION_RULES = {
   [DISCOUNT_TYPES.amount]: {
     max: 100000,
     errorMessage: '할인 금액은 100,000원을 초과할 수 없습니다'
