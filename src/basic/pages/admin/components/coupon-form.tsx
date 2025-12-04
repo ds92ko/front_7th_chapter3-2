@@ -6,8 +6,8 @@ import Select from '../../../components/select';
 import useForm from '../../../hooks/form';
 import { AddNotification } from '../../../hooks/notifications';
 import { Coupon, DiscountType } from '../../../types/coupons';
-import { validateRange } from '../../../utils/validator';
 import { isNumericInput, parseNumericInput, toUpperCase as toUpperCaseUtil } from '../../../utils/form';
+import { validateRange } from '../../../utils/validator';
 import { COUPON_VALIDATION_RULES, DISCOUNT_TYPE_LABELS, DISCOUNT_TYPE_PLACEHOLDERS, DISCOUNT_TYPES, initialForm } from '../constants/coupons';
 
 interface CouponFormProps {
@@ -27,19 +27,16 @@ const CouponForm = ({ addCoupon, close, addNotification }: CouponFormProps) => {
 
   const { form, setForm, handleSubmit } = useForm({ initialForm, onSubmit });
 
-  const discountTypeOptions = useMemo(
-    () => Object.values(DISCOUNT_TYPES).map(type => ({ label: DISCOUNT_TYPE_LABELS[type], value: type })),
-    []
-  );
+  const discountTypeOptions = useMemo(() => Object.values(DISCOUNT_TYPES).map(type => ({ label: DISCOUNT_TYPE_LABELS[type], value: type })), []);
 
   const handleChange = {
-    name: (e: ChangeEvent<HTMLInputElement>) => setForm({ ...form, name: e.target.value }),
-    code: (e: ChangeEvent<HTMLInputElement>) => setForm({ ...form, code: toUpperCaseUtil(e.target.value) }),
-    discountType: (e: ChangeEvent<HTMLSelectElement>) => setForm({ ...form, discountType: e.target.value as DiscountType }),
+    name: (e: ChangeEvent<HTMLInputElement>) => setForm(prev => ({ ...prev, name: e.target.value })),
+    code: (e: ChangeEvent<HTMLInputElement>) => setForm(prev => ({ ...prev, code: toUpperCaseUtil(e.target.value) })),
+    discountType: (e: ChangeEvent<HTMLSelectElement>) => setForm(prev => ({ ...prev, discountType: e.target.value as DiscountType })),
     discountValue: (e: ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
       if (isNumericInput(value)) {
-        setForm({ ...form, discountValue: parseNumericInput(value) });
+        setForm(prev => ({ ...prev, discountValue: parseNumericInput(value) }));
       }
     }
   };
@@ -53,7 +50,7 @@ const CouponForm = ({ addCoupon, close, addNotification }: CouponFormProps) => {
         if (validation.errorMessage) {
           addNotification(validation.errorMessage, 'error');
         }
-        setForm({ ...form, discountValue: validation.validatedValue });
+        setForm(prev => ({ ...prev, discountValue: validation.validatedValue }));
       }
     }
   };

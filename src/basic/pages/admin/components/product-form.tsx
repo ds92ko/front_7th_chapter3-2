@@ -15,7 +15,6 @@ import { initialForm, PRODUCT_VALIDATION_RULES } from '../constants/products';
 interface DiscountRowProps {
   discount: { quantity: number; rate: number };
   index: number;
-  form: ProductFormData;
   setForm: React.Dispatch<React.SetStateAction<ProductFormData>>;
   handleChange: {
     discountQuantity: (e: ChangeEvent<HTMLInputElement>, index: number) => void;
@@ -23,7 +22,7 @@ interface DiscountRowProps {
   };
 }
 
-const DiscountRow = ({ discount, index, form, setForm, handleChange }: DiscountRowProps) => {
+const DiscountRow = ({ discount, index, setForm, handleChange }: DiscountRowProps) => {
   return (
     <div className='flex items-center gap-2 bg-gray-50 p-2 rounded'>
       <Input
@@ -49,7 +48,7 @@ const DiscountRow = ({ discount, index, form, setForm, handleChange }: DiscountR
         variant='destructive'
         type='button'
         onClick={() => {
-          setForm({ ...form, discounts: removeDiscount(form.discounts, index) });
+          setForm(prev => ({ ...prev, discounts: removeDiscount(prev.discounts, index) }));
         }}
       >
         <XIcon />
@@ -59,17 +58,16 @@ const DiscountRow = ({ discount, index, form, setForm, handleChange }: DiscountR
 };
 
 interface AddDiscountButtonProps {
-  form: ProductFormData;
   setForm: React.Dispatch<React.SetStateAction<ProductFormData>>;
 }
 
-const AddDiscountButton = ({ form, setForm }: AddDiscountButtonProps) => {
+const AddDiscountButton = ({ setForm }: AddDiscountButtonProps) => {
   return (
     <Button
       variant='subtle'
       type='button'
       onClick={() => {
-        setForm({ ...form, discounts: addDefaultDiscount(form.discounts) });
+        setForm(prev => ({ ...prev, discounts: addDefaultDiscount(prev.discounts) }));
       }}
       className='text-sm'
     >
@@ -105,29 +103,33 @@ const ProductForm = ({ products, editingProduct, setEditingProduct, addProduct, 
   const { form, setForm, resetForm, handleSubmit } = useForm({ initialForm, onSubmit });
 
   const handleChange = {
-    name: (e: ChangeEvent<HTMLInputElement>) => setForm({ ...form, name: e.target.value }),
-    description: (e: ChangeEvent<HTMLInputElement>) => setForm({ ...form, description: e.target.value }),
+    name: (e: ChangeEvent<HTMLInputElement>) => setForm(prev => ({ ...prev, name: e.target.value })),
+    description: (e: ChangeEvent<HTMLInputElement>) => setForm(prev => ({ ...prev, description: e.target.value })),
     price: (e: ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
       if (isNumericInput(value)) {
-        setForm({ ...form, price: parseNumericInput(value) });
+        setForm(prev => ({ ...prev, price: parseNumericInput(value) }));
       }
     },
     stock: (e: ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
       if (isNumericInput(value)) {
-        setForm({ ...form, stock: parseNumericInput(value) });
+        setForm(prev => ({ ...prev, stock: parseNumericInput(value) }));
       }
     },
     discountQuantity: (e: ChangeEvent<HTMLInputElement>, index: number) => {
-      const newDiscounts = [...form.discounts];
-      newDiscounts[index].quantity = parseNumericInput(e.target.value) || 0;
-      setForm({ ...form, discounts: newDiscounts });
+      setForm(prev => {
+        const newDiscounts = [...prev.discounts];
+        newDiscounts[index].quantity = parseNumericInput(e.target.value) || 0;
+        return { ...prev, discounts: newDiscounts };
+      });
     },
     discountRate: (e: ChangeEvent<HTMLInputElement>, index: number) => {
-      const newDiscounts = [...form.discounts];
-      newDiscounts[index].rate = convertPercentageToDecimal(parseNumericInput(e.target.value) || 0);
-      setForm({ ...form, discounts: newDiscounts });
+      setForm(prev => {
+        const newDiscounts = [...prev.discounts];
+        newDiscounts[index].rate = convertPercentageToDecimal(parseNumericInput(e.target.value) || 0);
+        return { ...prev, discounts: newDiscounts };
+      });
     }
   };
 
@@ -138,7 +140,7 @@ const ProductForm = ({ products, editingProduct, setEditingProduct, addProduct, 
 
       if (!validation.isValid) {
         addNotification(validation.errorMessage!, 'error');
-        setForm({ ...form, price: validation.validatedValue });
+        setForm(prev => ({ ...prev, price: validation.validatedValue }));
       }
     },
     stock: (e: FocusEvent<HTMLInputElement>) => {
@@ -147,7 +149,7 @@ const ProductForm = ({ products, editingProduct, setEditingProduct, addProduct, 
 
       if (!validation.isValid) {
         addNotification(validation.errorMessage!, 'error');
-        setForm({ ...form, stock: validation.validatedValue });
+        setForm(prev => ({ ...prev, stock: validation.validatedValue }));
       }
     }
   };
@@ -211,9 +213,9 @@ const ProductForm = ({ products, editingProduct, setEditingProduct, addProduct, 
           <Label className='mb-2'>할인 정책</Label>
           <div className='space-y-2'>
             {form.discounts.map((discount, index) => (
-              <DiscountRow key={index} discount={discount} index={index} form={form} setForm={setForm} handleChange={handleChange} />
+              <DiscountRow key={index} discount={discount} index={index} setForm={setForm} handleChange={handleChange} />
             ))}
-            <AddDiscountButton form={form} setForm={setForm} />
+            <AddDiscountButton setForm={setForm} />
           </div>
         </div>
 

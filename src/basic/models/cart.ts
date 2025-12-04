@@ -53,26 +53,26 @@ export const calculateCartTotal = (
   totalBeforeDiscount: number;
   totalAfterDiscount: number;
 } => {
-  let totalBeforeDiscount = 0;
-  let totalAfterDiscount = 0;
+  const { totalBeforeDiscount, totalAfterDiscount: beforeCoupon } = cart.reduce(
+    (acc, item) => {
+      const itemPrice = item.product.price * item.quantity;
+      return {
+        totalBeforeDiscount: acc.totalBeforeDiscount + itemPrice,
+        totalAfterDiscount: acc.totalAfterDiscount + calculateItemTotal(item, cart)
+      };
+    },
+    { totalBeforeDiscount: 0, totalAfterDiscount: 0 }
+  );
 
-  cart.forEach(item => {
-    const itemPrice = item.product.price * item.quantity;
-    totalBeforeDiscount += itemPrice;
-    totalAfterDiscount += calculateItemTotal(item, cart);
-  });
-
-  if (selectedCoupon) {
-    if (selectedCoupon.discountType === 'amount') {
-      totalAfterDiscount = Math.max(0, totalAfterDiscount - selectedCoupon.discountValue);
-    } else {
-      totalAfterDiscount = Math.round(totalAfterDiscount * (1 - selectedCoupon.discountValue / 100));
-    }
-  }
+  const totalAfterDiscount = selectedCoupon
+    ? selectedCoupon.discountType === 'amount'
+      ? Math.max(0, beforeCoupon - selectedCoupon.discountValue)
+      : Math.round(beforeCoupon * (1 - selectedCoupon.discountValue / 100))
+    : beforeCoupon;
 
   return {
     totalBeforeDiscount: Math.round(totalBeforeDiscount),
-    totalAfterDiscount: Math.round(totalAfterDiscount)
+    totalAfterDiscount
   };
 };
 
