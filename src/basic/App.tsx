@@ -26,8 +26,8 @@ const App = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm);
 
-  const handleSwitchToAdmin = useCallback(() => switchPage(admin), [switchPage, admin]);
-  const handleSwitchToStore = useCallback(() => switchPage(store), [switchPage, store]);
+  const handleSwitchToAdmin = useCallback(() => switchPage(admin), [switchPage]);
+  const handleSwitchToStore = useCallback(() => switchPage(store), [switchPage]);
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value), []);
 
   const nav = {
