@@ -7,7 +7,6 @@ import Toast from './components/toast';
 import { PAGES } from './constants/pages';
 import useDebounce from './hooks/debounce';
 import usePage from './hooks/pages';
-import useSelectedCoupon from './hooks/selected-coupon';
 import AdminPage from './pages/admin';
 import StorePage from './pages/store';
 import { cartContext } from './stores/cart';
@@ -16,7 +15,6 @@ const App = () => {
   const { store, admin } = PAGES;
   const { currentPage, switchPage, isCurrentPage } = usePage(store);
   const { totalItemCount } = cartContext();
-  const [selectedCoupon, setSelectedCoupon] = useSelectedCoupon();
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm);
 
@@ -52,10 +50,10 @@ const App = () => {
 
   const page = useMemo(
     () => ({
-      [store]: <StorePage debouncedSearchTerm={debouncedSearchTerm} selectedCoupon={selectedCoupon} setSelectedCoupon={setSelectedCoupon} />,
+      [store]: <StorePage debouncedSearchTerm={debouncedSearchTerm} />,
       [admin]: <AdminPage />
     }),
-    [store, admin, debouncedSearchTerm, selectedCoupon, setSelectedCoupon]
+    [store, admin, debouncedSearchTerm]
   );
 
   return (

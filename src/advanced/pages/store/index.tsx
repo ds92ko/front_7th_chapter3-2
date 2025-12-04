@@ -1,7 +1,6 @@
-import { Dispatch, SetStateAction } from 'react';
+import useSelectedCoupon from '../../hooks/selected-coupon';
 import { calculateCartTotal } from '../../models/cart';
 import { cartContext } from '../../stores/cart';
-import { Coupon } from '../../types/coupons';
 import CartSection from './components/cart-section';
 import CouponSection from './components/coupon-section';
 import PaymentSection from './components/payment-section';
@@ -9,12 +8,11 @@ import ProductSection from './components/product-section';
 
 interface StorePageProps {
   debouncedSearchTerm: string;
-  selectedCoupon: Coupon | null;
-  setSelectedCoupon: Dispatch<SetStateAction<Coupon | null>>;
 }
 
-const StorePage = ({ debouncedSearchTerm, selectedCoupon, setSelectedCoupon }: StorePageProps) => {
+const StorePage = ({ debouncedSearchTerm }: StorePageProps) => {
   const { cart, totalItemCount } = cartContext();
+  const [selectedCoupon, setSelectedCoupon] = useSelectedCoupon();
   const totals = calculateCartTotal(cart, selectedCoupon);
 
   return (
