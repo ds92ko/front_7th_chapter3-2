@@ -1,11 +1,10 @@
 import Button from '../../../components/button';
 import { ImageIcon } from '../../../components/icons';
 import { getRemainingStock } from '../../../models/cart';
-import { formatFirstDiscount, getMaxDiscountRate } from '../../../models/product';
+import { filterProductsBySearchTerm, formatFirstDiscount, getCartButtonText, getMaxDiscountRate, getStockStatusText } from '../../../models/product';
 import { CartItem } from '../../../types/carts';
 import { ProductWithUI } from '../../../types/products';
 import { formatPrice } from '../../../utils/format';
-import { filterProductsBySearchTerm, getCartButtonText, getStockStatusText } from '../../../utils/product';
 
 interface NoResultsProps {
   keyword: string;

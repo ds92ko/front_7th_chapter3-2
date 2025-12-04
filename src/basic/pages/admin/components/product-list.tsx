@@ -2,7 +2,7 @@ import Button from '../../../components/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../../components/table';
 import { ProductWithUI } from '../../../types/products';
 import { formatPrice } from '../../../utils/format';
-import { getStockStatusStyle } from '../../../utils/product';
+import { getStockStatusStyle } from '../../../models/product';
 
 interface ProductListProps {
   products: ProductWithUI[];

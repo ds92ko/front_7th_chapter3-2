@@ -2,8 +2,7 @@ import { Dispatch, SetStateAction } from 'react';
 import Select from '../../../components/select';
 import { AddNotification } from '../../../hooks/notifications';
 import { Coupon } from '../../../types/coupons';
-import { validateCouponApplicability } from '../../../models/coupon';
-import { findCouponByCode, convertCouponsToOptions } from '../../../utils/coupon';
+import { convertCouponsToOptions, findCouponByCode, validateCouponApplicability } from '../../../models/coupon';
 
 interface CouponSectionProps {
   coupons: Coupon[];

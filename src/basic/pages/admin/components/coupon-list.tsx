@@ -1,7 +1,7 @@
 import Button from '../../../components/button';
 import { PlusIcon, TrashIcon } from '../../../components/icons';
 import { Coupon } from '../../../types/coupons';
-import { formatCouponDiscount } from '../../../utils/coupon';
+import { formatCouponDiscount } from '../../../models/coupon';
 
 interface CouponItemProps {
   coupon: Coupon;

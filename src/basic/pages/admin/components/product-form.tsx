@@ -5,10 +5,10 @@ import Input from '../../../components/input';
 import Label from '../../../components/label';
 import useForm from '../../../hooks/form';
 import { AddNotification } from '../../../hooks/notifications';
+import { addDefaultDiscount, removeDiscount } from '../../../models/product';
 import { ProductFormData, ProductWithUI } from '../../../types/products';
-import { addDefaultDiscount, removeDiscount } from '../../../utils/discount';
 import { convertDecimalToPercentage, convertPercentageToDecimal, isNumericInput, parseNumericInput } from '../../../utils/form';
-import { getProductFormSubmitText, getProductFormTitle, isEditingProduct } from '../../../utils/product-form';
+import { getProductFormSubmitText, getProductFormTitle, isEditingProduct } from '../../../models/product';
 import { validateRange } from '../../../utils/validator';
 import { initialForm, PRODUCT_VALIDATION_RULES } from '../constants/products';
 
