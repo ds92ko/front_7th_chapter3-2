@@ -3,7 +3,9 @@ import { ProductFormData } from '../../../types/products';
 export const PRODUCT_VALIDATION_RULES = {
   price: {
     min: 0,
-    errorMessage: '가격은 0보다 커야 합니다'
+    errorMessages: {
+      min: '가격은 0보다 커야 합니다'
+    }
   },
   stock: {
     min: 0,

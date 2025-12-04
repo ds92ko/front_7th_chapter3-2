@@ -2,6 +2,7 @@ import { Dispatch, SetStateAction, useCallback } from 'react';
 import Select from '../../../components/select';
 import { AddNotification } from '../../../hooks/notifications';
 import { Coupon } from '../../../types/coupons';
+import { validateCouponApplicability } from '../../../models/coupon';
 
 interface CouponSectionProps {
   coupons: Coupon[];
@@ -18,9 +19,10 @@ const CouponSection = ({ coupons, totals, selectedCoupon, setSelectedCoupon, add
   const applyCoupon = useCallback(
     (coupon: Coupon) => {
       const currentTotal = totals.totalAfterDiscount;
+      const validation = validateCouponApplicability(coupon, currentTotal);
 
-      if (currentTotal < 10000 && coupon.discountType === 'percentage') {
-        addNotification('percentage 쿠폰은 10,000원 이상 구매 시 사용 가능합니다.', 'error');
+      if (!validation.isValid) {
+        addNotification(validation.errorMessage!, 'error');
         return;
       }
 

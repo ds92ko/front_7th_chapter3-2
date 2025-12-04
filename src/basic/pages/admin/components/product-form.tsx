@@ -6,6 +6,7 @@ import Label from '../../../components/label';
 import useForm from '../../../hooks/form';
 import { AddNotification } from '../../../hooks/notifications';
 import { ProductFormData, ProductWithUI } from '../../../types/products';
+import { validateRange } from '../../../utils/validator';
 import { initialForm, PRODUCT_VALIDATION_RULES } from '../constants/products';
 
 interface ProductFormProps {
@@ -62,26 +63,20 @@ const ProductForm = ({ products, editingProduct, setEditingProduct, addProduct, 
   const handleBlur = {
     price: (e: FocusEvent<HTMLInputElement>) => {
       const value = parseInt(e.target.value) || 0;
-      const rule = PRODUCT_VALIDATION_RULES.price;
+      const validation = validateRange(value, PRODUCT_VALIDATION_RULES.price);
 
-      if (value < rule.min) {
-        addNotification(rule.errorMessage, 'error');
-        setForm({ ...form, price: rule.min });
+      if (!validation.isValid) {
+        addNotification(validation.errorMessage!, 'error');
+        setForm({ ...form, price: validation.validatedValue });
       }
     },
     stock: (e: FocusEvent<HTMLInputElement>) => {
       const value = parseInt(e.target.value) || 0;
-      const rule = PRODUCT_VALIDATION_RULES.stock;
+      const validation = validateRange(value, PRODUCT_VALIDATION_RULES.stock);
 
-      if (value < rule.min) {
-        addNotification(rule.errorMessages.min, 'error');
-        setForm({ ...form, stock: rule.min });
-        return;
-      }
-
-      if (value > rule.max) {
-        addNotification(rule.errorMessages.max, 'error');
-        setForm({ ...form, stock: rule.max });
+      if (!validation.isValid) {
+        addNotification(validation.errorMessage!, 'error');
+        setForm({ ...form, stock: validation.validatedValue });
       }
     }
   };

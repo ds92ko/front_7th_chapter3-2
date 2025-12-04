@@ -17,12 +17,18 @@ export const DISCOUNT_TYPE_PLACEHOLDERS = {
 
 export const COUPON_VALIDATION_RULES = {
   [DISCOUNT_TYPES.amount]: {
+    min: 0,
     max: 100000,
-    errorMessage: '할인 금액은 100,000원을 초과할 수 없습니다'
+    errorMessages: {
+      max: '할인 금액은 100,000원을 초과할 수 없습니다'
+    }
   },
   [DISCOUNT_TYPES.percentage]: {
+    min: 0,
     max: 100,
-    errorMessage: '할인율은 100%를 초과할 수 없습니다'
+    errorMessages: {
+      max: '할인율은 100%를 초과할 수 없습니다'
+    }
   }
 } as const;
 

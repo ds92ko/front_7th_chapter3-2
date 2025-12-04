@@ -6,6 +6,7 @@ import Select from '../../../components/select';
 import useForm from '../../../hooks/form';
 import { AddNotification } from '../../../hooks/notifications';
 import { Coupon, DiscountType } from '../../../types/coupons';
+import { validateRange } from '../../../utils/validator';
 import { COUPON_VALIDATION_RULES, DISCOUNT_TYPE_LABELS, DISCOUNT_TYPE_PLACEHOLDERS, DISCOUNT_TYPES, initialForm } from '../constants/coupons';
 
 interface CouponFormProps {
@@ -37,16 +38,13 @@ const CouponForm = ({ addCoupon, close, addNotification }: CouponFormProps) => {
   const handleBlur = {
     discountValue: (e: FocusEvent<HTMLInputElement>) => {
       const value = parseInt(e.target.value) || 0;
-      const rule = COUPON_VALIDATION_RULES[form.discountType];
+      const validation = validateRange(value, COUPON_VALIDATION_RULES[form.discountType]);
 
-      if (value < 0) {
-        setForm({ ...form, discountValue: 0 });
-        return;
-      }
-
-      if (value > rule.max) {
-        addNotification(rule.errorMessage, 'error');
-        setForm({ ...form, discountValue: rule.max });
+      if (!validation.isValid) {
+        if (validation.errorMessage) {
+          addNotification(validation.errorMessage, 'error');
+        }
+        setForm({ ...form, discountValue: validation.validatedValue });
       }
     }
   };
