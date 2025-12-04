@@ -1,6 +1,5 @@
 import Button from '../../../components/button';
 import { ShoppingBagIcon, XIcon } from '../../../components/icons';
-import { AddNotification } from '../../../hooks/notifications';
 import { calculateDiscountRate } from '../../../models/cart';
 import { CartItem } from '../../../types/carts';
 import { ProductWithUI } from '../../../types/products';
@@ -12,7 +11,6 @@ interface CartSectionProps {
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, newQuantity: number, products: ProductWithUI[]) => void;
   calculateItemTotal: (item: CartItem) => number;
-  addNotification: AddNotification;
 }
 
 const NoResults = () => {

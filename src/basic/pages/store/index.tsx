@@ -33,7 +33,6 @@ const StorePage = ({ products, debouncedSearchTerm, cart, addToCart, removeFromC
         <ProductSection
           products={products}
           debouncedSearchTerm={debouncedSearchTerm}
-          addNotification={addNotification}
           cart={cart}
           addToCart={addToCart}
         />
@@ -47,7 +46,6 @@ const StorePage = ({ products, debouncedSearchTerm, cart, addToCart, removeFromC
             removeFromCart={removeFromCart}
             updateQuantity={updateQuantity}
             calculateItemTotal={calculateItemTotalMemo}
-            addNotification={addNotification}
           />
 
           {cart.length > 0 && (

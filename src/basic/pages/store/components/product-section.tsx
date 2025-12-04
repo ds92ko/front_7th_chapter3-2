@@ -1,4 +1,3 @@
-import { AddNotification } from '../../../hooks/notifications';
 import { CartItem } from '../../../types/carts';
 import { ProductWithUI } from '../../../types/products';
 import ProductList from './product-list';
@@ -6,7 +5,6 @@ import ProductList from './product-list';
 interface ProductSectionProps {
   products: ProductWithUI[];
   debouncedSearchTerm: string;
-  addNotification: AddNotification;
   cart: CartItem[];
   addToCart: (product: ProductWithUI) => void;
 }
