@@ -5,7 +5,6 @@ import { CartIcon } from './components/icons';
 import Input from './components/input';
 import Toast from './components/toast';
 import { PAGES } from './constants/pages';
-import useCart from './hooks/cart';
 import useCoupons from './hooks/coupons';
 import useDebounce from './hooks/debounce';
 import usePage from './hooks/pages';
@@ -13,13 +12,14 @@ import useProducts from './hooks/products';
 import useSelectedCoupon from './hooks/selected-coupon';
 import AdminPage from './pages/admin';
 import StorePage from './pages/store';
+import { cartContext } from './stores/cart';
 
 const App = () => {
   const { store, admin } = PAGES;
   const { currentPage, switchPage, isCurrentPage } = usePage(store);
   const { products, addProduct, updateProduct, deleteProduct } = useProducts();
   const { coupons, addCoupon, deleteCoupon } = useCoupons();
-  const { cart, totalItemCount, addToCart, removeFromCart, updateQuantity, clearCart } = useCart();
+  const { totalItemCount } = cartContext();
   const [selectedCoupon, setSelectedCoupon] = useSelectedCoupon(coupons);
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm);
@@ -60,12 +60,6 @@ const App = () => {
         <StorePage
           products={products}
           debouncedSearchTerm={debouncedSearchTerm}
-          cart={cart}
-          totalItemCount={totalItemCount}
-          addToCart={addToCart}
-          removeFromCart={removeFromCart}
-          updateQuantity={updateQuantity}
-          clearCart={clearCart}
           coupons={coupons}
           selectedCoupon={selectedCoupon}
           setSelectedCoupon={setSelectedCoupon}
@@ -88,12 +82,6 @@ const App = () => {
       admin,
       products,
       debouncedSearchTerm,
-      cart,
-      totalItemCount,
-      addToCart,
-      removeFromCart,
-      updateQuantity,
-      clearCart,
       coupons,
       selectedCoupon,
       setSelectedCoupon,

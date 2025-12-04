@@ -22,7 +22,7 @@ const initialContext: NotificationsContext = {
   notifications: []
 };
 
-const useNotifications = create<NotificationsStore>(set => ({
+export const useNotifications = create<NotificationsStore>(set => ({
   context: {
     ...initialContext
   },

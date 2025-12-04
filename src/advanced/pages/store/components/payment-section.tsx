@@ -1,6 +1,7 @@
 import { Dispatch, SetStateAction } from 'react';
 import Button from '../../../components/button';
 import { calculateDiscountAmount, hasDiscount } from '../../../models/cart';
+import { cartActions } from '../../../stores/cart';
 import { notificationsActions } from '../../../stores/notifications';
 import { Coupon } from '../../../types/coupons';
 import { formatCurrency } from '../../../utils/format';
@@ -11,12 +12,12 @@ interface PaymentSectionProps {
     totalBeforeDiscount: number;
     totalAfterDiscount: number;
   };
-  clearCart: () => void;
   setSelectedCoupon: Dispatch<SetStateAction<Coupon | null>>;
 }
 
-const PaymentSection = ({ totals, clearCart, setSelectedCoupon }: PaymentSectionProps) => {
+const PaymentSection = ({ totals, setSelectedCoupon }: PaymentSectionProps) => {
   const { addNotification } = notificationsActions();
+  const { clearCart } = cartActions();
 
   return (
     <section className='bg-white rounded-lg border border-gray-200 p-4'>

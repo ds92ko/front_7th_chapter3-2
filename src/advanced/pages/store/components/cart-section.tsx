@@ -1,24 +1,18 @@
 import Button from '../../../components/button';
 import { ShoppingBagIcon, XIcon } from '../../../components/icons';
 import { calculateDiscountRate, calculateItemTotal } from '../../../models/cart';
+import { cartActions, cartContext } from '../../../stores/cart';
 import { CartItem as CartItemType } from '../../../types/carts';
 import { ProductWithUI } from '../../../types/products';
 import { formatCurrency } from '../../../utils/format';
 
 interface CartItemProps {
   item: CartItemType;
-  cart: CartItemType[];
   products: ProductWithUI[];
-  removeFromCart: (productId: string) => void;
-  updateQuantity: (productId: string, newQuantity: number, products: ProductWithUI[]) => void;
 }
 
 interface CartSectionProps {
   products: ProductWithUI[];
-  cart: CartItemType[];
-  totalItemCount: number;
-  removeFromCart: (productId: string) => void;
-  updateQuantity: (productId: string, newQuantity: number, products: ProductWithUI[]) => void;
 }
 
 const NoResults = () => {
@@ -30,7 +24,9 @@ const NoResults = () => {
   );
 };
 
-const CartItem = ({ item, cart, products, removeFromCart, updateQuantity }: CartItemProps) => {
+const CartItem = ({ item, products }: CartItemProps) => {
+  const { cart } = cartContext();
+  const { removeFromCart, updateQuantity } = cartActions();
   const itemTotal = calculateItemTotal(item, cart);
   const discountRate = calculateDiscountRate(item, cart);
 
@@ -67,7 +63,9 @@ const CartItem = ({ item, cart, products, removeFromCart, updateQuantity }: Cart
   );
 };
 
-const CartSection = ({ products, cart, totalItemCount, removeFromCart, updateQuantity }: CartSectionProps) => {
+const CartSection = ({ products }: CartSectionProps) => {
+  const { cart, totalItemCount } = cartContext();
+
   return (
     <section className='bg-white rounded-lg border border-gray-200 p-4'>
       <h2 className='text-lg font-semibold mb-4 flex items-center'>
@@ -79,14 +77,7 @@ const CartSection = ({ products, cart, totalItemCount, removeFromCart, updateQua
       ) : (
         <div className='space-y-3'>
           {cart.map(item => (
-            <CartItem
-              key={item.product.id}
-              item={item}
-              cart={cart}
-              products={products}
-              removeFromCart={removeFromCart}
-              updateQuantity={updateQuantity}
-            />
+            <CartItem key={item.product.id} item={item} products={products} />
           ))}
         </div>
       )}

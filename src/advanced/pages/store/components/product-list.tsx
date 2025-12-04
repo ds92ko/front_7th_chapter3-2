@@ -2,7 +2,7 @@ import Button from '../../../components/button';
 import { ImageIcon } from '../../../components/icons';
 import { getRemainingStock } from '../../../models/cart';
 import { filterProductsBySearchTerm, formatFirstDiscount, getCartButtonText, getMaxDiscountRate, getStockStatusText } from '../../../models/product';
-import { CartItem } from '../../../types/carts';
+import { cartActions, cartContext } from '../../../stores/cart';
 import { ProductWithUI } from '../../../types/products';
 import { formatPrice } from '../../../utils/format';
 
@@ -12,15 +12,11 @@ interface NoResultsProps {
 
 interface ProductItemProps {
   product: ProductWithUI;
-  cart: CartItem[];
-  addToCart: (product: ProductWithUI) => void;
 }
 
 interface ProductListProps {
   products: ProductWithUI[];
   debouncedSearchTerm: string;
-  cart: CartItem[];
-  addToCart: (product: ProductWithUI) => void;
 }
 
 const NoResults = ({ keyword }: NoResultsProps) => {
@@ -31,7 +27,9 @@ const NoResults = ({ keyword }: NoResultsProps) => {
   );
 };
 
-const ProductItem = ({ product, cart, addToCart }: ProductItemProps) => {
+const ProductItem = ({ product }: ProductItemProps) => {
+  const { cart } = cartContext();
+  const { addToCart } = cartActions();
   const remainingStock = getRemainingStock(product, cart);
   const stockStatus = getStockStatusText(remainingStock);
 
@@ -80,7 +78,7 @@ const ProductItem = ({ product, cart, addToCart }: ProductItemProps) => {
   );
 };
 
-const ProductList = ({ products, debouncedSearchTerm, cart, addToCart }: ProductListProps) => {
+const ProductList = ({ products, debouncedSearchTerm }: ProductListProps) => {
   const filteredProducts = filterProductsBySearchTerm(products, debouncedSearchTerm);
 
   return filteredProducts.length === 0 ? (
@@ -88,7 +86,7 @@ const ProductList = ({ products, debouncedSearchTerm, cart, addToCart }: Product
   ) : (
     <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
       {filteredProducts.map(product => (
-        <ProductItem key={product.id} product={product} cart={cart} addToCart={addToCart} />
+        <ProductItem key={product.id} product={product} />
       ))}
     </div>
   );
