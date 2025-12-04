@@ -1,15 +1,15 @@
-import { Dispatch, SetStateAction, useCallback } from 'react';
 import Button from '../../../components/button';
 import { ShoppingBagIcon, XIcon } from '../../../components/icons';
 import { AddNotification } from '../../../hooks/notifications';
 import { CartItem } from '../../../types/carts';
 import { ProductWithUI } from '../../../types/products';
-import { removeItemFromCart, updateCartItemQuantity } from '../../../models/cart';
+import { calculateDiscountRate } from '../../../models/cart';
 
 interface CartSectionProps {
   products: ProductWithUI[];
   cart: CartItem[];
-  setCart: Dispatch<SetStateAction<CartItem[]>>;
+  removeFromCart: (productId: string) => void;
+  updateQuantity: (productId: string, newQuantity: number, products: ProductWithUI[]) => void;
   calculateItemTotal: (item: CartItem) => number;
   addNotification: AddNotification;
 }
@@ -23,34 +23,7 @@ const NoResults = () => {
   );
 };
 
-const CartSection = ({ products, cart, setCart, calculateItemTotal, addNotification }: CartSectionProps) => {
-  const removeFromCart = useCallback(
-    (productId: string) => {
-      setCart(prevCart => removeItemFromCart(prevCart, productId));
-    },
-    [setCart]
-  );
-
-  const updateQuantity = useCallback(
-    (productId: string, newQuantity: number) => {
-      if (newQuantity <= 0) {
-        removeFromCart(productId);
-        return;
-      }
-
-      const product = products.find(p => p.id === productId);
-      if (!product) return;
-
-      const maxStock = product.stock;
-      if (newQuantity > maxStock) {
-        addNotification(`재고는 ${maxStock}개까지만 있습니다.`, 'error');
-        return;
-      }
-
-      setCart(prevCart => updateCartItemQuantity(prevCart, productId, newQuantity));
-    },
-    [products, setCart, removeFromCart, addNotification]
-  );
+const CartSection = ({ products, cart, removeFromCart, updateQuantity, calculateItemTotal }: CartSectionProps) => {
 
   return (
     <section className='bg-white rounded-lg border border-gray-200 p-4'>
@@ -64,9 +37,7 @@ const CartSection = ({ products, cart, setCart, calculateItemTotal, addNotificat
         <div className='space-y-3'>
           {cart.map(item => {
             const itemTotal = calculateItemTotal(item);
-            const originalPrice = item.product.price * item.quantity;
-            const hasDiscount = itemTotal < originalPrice;
-            const discountRate = hasDiscount ? Math.round((1 - itemTotal / originalPrice) * 100) : 0;
+            const discountRate = calculateDiscountRate(item, cart);
 
             return (
               <div key={item.product.id} className='border-b pb-3 last:border-b-0'>
@@ -79,21 +50,21 @@ const CartSection = ({ products, cart, setCart, calculateItemTotal, addNotificat
                 <div className='flex items-center justify-between'>
                   <div className='flex items-center'>
                     <button
-                      onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                      onClick={() => updateQuantity(item.product.id, item.quantity - 1, products)}
                       className='w-6 h-6 rounded border border-gray-300 flex items-center justify-center hover:bg-gray-100'
                     >
                       <span className='text-xs'>−</span>
                     </button>
                     <span className='mx-3 text-sm font-medium w-8 text-center'>{item.quantity}</span>
                     <button
-                      onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                      onClick={() => updateQuantity(item.product.id, item.quantity + 1, products)}
                       className='w-6 h-6 rounded border border-gray-300 flex items-center justify-center hover:bg-gray-100'
                     >
                       <span className='text-xs'>+</span>
                     </button>
                   </div>
                   <div className='text-right'>
-                    {hasDiscount && <span className='text-xs text-red-500 font-medium block'>-{discountRate}%</span>}
+                    {discountRate > 0 && <span className='text-xs text-red-500 font-medium block'>-{discountRate}%</span>}
                     <p className='text-sm font-medium text-gray-900'>{Math.round(itemTotal).toLocaleString()}원</p>
                   </div>
                 </div>

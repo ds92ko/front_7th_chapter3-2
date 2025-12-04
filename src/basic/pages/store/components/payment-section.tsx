@@ -1,7 +1,6 @@
 import { Dispatch, SetStateAction, useCallback } from 'react';
 import Button from '../../../components/button';
 import { AddNotification } from '../../../hooks/notifications';
-import { CartItem } from '../../../types/carts';
 import { Coupon } from '../../../types/coupons';
 
 interface PaymentSectionProps {
@@ -10,17 +9,17 @@ interface PaymentSectionProps {
     totalAfterDiscount: number;
   };
   addNotification: AddNotification;
-  setCart: Dispatch<SetStateAction<CartItem[]>>;
+  clearCart: () => void;
   setSelectedCoupon: Dispatch<SetStateAction<Coupon | null>>;
 }
 
-const PaymentSection = ({ totals, addNotification, setCart, setSelectedCoupon }: PaymentSectionProps) => {
+const PaymentSection = ({ totals, addNotification, clearCart, setSelectedCoupon }: PaymentSectionProps) => {
   const completeOrder = useCallback(() => {
     const orderNumber = `ORD-${Date.now()}`;
     addNotification(`주문이 완료되었습니다. 주문번호: ${orderNumber}`, 'success');
-    setCart([]);
+    clearCart();
     setSelectedCoupon(null);
-  }, [addNotification, setCart, setSelectedCoupon]);
+  }, [addNotification, clearCart, setSelectedCoupon]);
 
   return (
     <section className='bg-white rounded-lg border border-gray-200 p-4'>

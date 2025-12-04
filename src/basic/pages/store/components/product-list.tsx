@@ -1,10 +1,10 @@
-import { Dispatch, SetStateAction, useCallback } from 'react';
 import Button from '../../../components/button';
 import { ImageIcon } from '../../../components/icons';
 import { AddNotification } from '../../../hooks/notifications';
 import { CartItem } from '../../../types/carts';
 import { ProductWithUI } from '../../../types/products';
-import { getRemainingStock, addItemToCart } from '../../../models/cart';
+import { getRemainingStock } from '../../../models/cart';
+import { filterProductsBySearchTerm } from '../../../utils/product';
 import { formatPrice } from '../../../utils/format';
 
 interface NoResultsProps {
@@ -14,16 +14,14 @@ interface NoResultsProps {
 interface ProductItemProps {
   product: ProductWithUI;
   cart: CartItem[];
-  setCart: Dispatch<SetStateAction<CartItem[]>>;
-  addNotification: AddNotification;
+  addToCart: (product: ProductWithUI) => void;
 }
 
 interface ProductListProps {
   products: ProductWithUI[];
   debouncedSearchTerm: string;
-  addNotification: AddNotification;
   cart: CartItem[];
-  setCart: Dispatch<SetStateAction<CartItem[]>>;
+  addToCart: (product: ProductWithUI) => void;
 }
 
 const NoResults = ({ keyword }: NoResultsProps) => {
@@ -34,38 +32,7 @@ const NoResults = ({ keyword }: NoResultsProps) => {
   );
 };
 
-const ProductItem = ({ product, cart, setCart, addNotification }: ProductItemProps) => {
-  const addToCart = useCallback(
-    (product: ProductWithUI) => {
-      const remainingStock = getRemainingStock(product, cart);
-
-      if (remainingStock <= 0) {
-        addNotification('재고가 부족합니다!', 'error');
-        return;
-      }
-
-      setCart(prevCart => {
-        const existingItem = prevCart.find(item => item.product.id === product.id);
-
-        if (existingItem) {
-          const newQuantity = existingItem.quantity + 1;
-
-          if (newQuantity > product.stock) {
-            addNotification(`재고는 ${product.stock}개까지만 있습니다.`, 'error');
-            return prevCart;
-          }
-
-          return prevCart.map(item => (item.product.id === product.id ? { ...item, quantity: newQuantity } : item));
-        }
-
-        return addItemToCart(prevCart, product);
-      });
-
-      addNotification('장바구니에 담았습니다', 'success');
-    },
-    [cart, setCart, addNotification]
-  );
-
+const ProductItem = ({ product, cart, addToCart }: ProductItemProps) => {
   const remainingStock = getRemainingStock(product, cart);
 
   return (
@@ -118,21 +85,15 @@ const ProductItem = ({ product, cart, setCart, addNotification }: ProductItemPro
   );
 };
 
-const ProductList = ({ products, debouncedSearchTerm, addNotification, cart, setCart }: ProductListProps) => {
-  const filteredProducts = debouncedSearchTerm
-    ? products.filter(
-        product =>
-          product.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-          (product.description && product.description.toLowerCase().includes(debouncedSearchTerm.toLowerCase()))
-      )
-    : products;
+const ProductList = ({ products, debouncedSearchTerm, cart, addToCart }: ProductListProps) => {
+  const filteredProducts = filterProductsBySearchTerm(products, debouncedSearchTerm);
 
   return filteredProducts.length === 0 ? (
     <NoResults keyword={debouncedSearchTerm} />
   ) : (
     <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
       {filteredProducts.map(product => (
-        <ProductItem key={product.id} product={product} cart={cart} setCart={setCart} addNotification={addNotification} />
+        <ProductItem key={product.id} product={product} cart={cart} addToCart={addToCart} />
       ))}
     </div>
   );

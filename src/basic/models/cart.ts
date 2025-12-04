@@ -106,3 +106,13 @@ export const addItemToCart = (cart: CartItem[], product: Product): CartItem[] =>
 export const removeItemFromCart = (cart: CartItem[], productId: string): CartItem[] => {
   return cart.filter(item => item.product.id !== productId);
 };
+
+/**
+ * 장바구니 아이템의 할인율을 계산합니다.
+ */
+export const calculateDiscountRate = (item: CartItem, cart: CartItem[]): number => {
+  const originalPrice = item.product.price * item.quantity;
+  const itemTotal = calculateItemTotal(item, cart);
+  const hasDiscount = itemTotal < originalPrice;
+  return hasDiscount ? Math.round((1 - itemTotal / originalPrice) * 100) : 0;
+};

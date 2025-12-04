@@ -5,15 +5,14 @@ import { CartIcon } from './components/icons';
 import Input from './components/input';
 import Toast from './components/toast';
 import { PAGES } from './constants/pages';
+import useCart from './hooks/cart';
 import useCoupons from './hooks/coupons';
 import useDebounce from './hooks/debounce';
-import useLocalStorage from './hooks/local-storage';
 import useNotifications from './hooks/notifications';
 import usePage from './hooks/pages';
 import useProducts from './hooks/products';
 import AdminPage from './pages/admin';
 import StorePage from './pages/store';
-import { CartItem } from './types/carts';
 import { Coupon } from './types/coupons';
 
 const App = () => {
@@ -22,16 +21,10 @@ const App = () => {
   const { notifications, addNotification, removeNotification } = useNotifications();
   const { products, addProduct, updateProduct, deleteProduct } = useProducts(addNotification);
   const { coupons, addCoupon, deleteCoupon } = useCoupons(addNotification);
-  const [cart, setCart] = useLocalStorage<CartItem[]>('cart', []);
+  const { cart, totalItemCount, addToCart, removeFromCart, updateQuantity, clearCart } = useCart(addNotification);
   const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm);
-  const [totalItemCount, setTotalItemCount] = useState(0);
-
-  useEffect(() => {
-    const count = cart.reduce((sum, item) => sum + item.quantity, 0);
-    setTotalItemCount(count);
-  }, [cart]);
 
   // 선택된 쿠폰이 삭제되면 자동으로 초기화
   useEffect(() => {
@@ -68,7 +61,10 @@ const App = () => {
         products={products}
         debouncedSearchTerm={debouncedSearchTerm}
         cart={cart}
-        setCart={setCart}
+        addToCart={addToCart}
+        removeFromCart={removeFromCart}
+        updateQuantity={updateQuantity}
+        clearCart={clearCart}
         coupons={coupons}
         selectedCoupon={selectedCoupon}
         setSelectedCoupon={setSelectedCoupon}

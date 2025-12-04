@@ -13,14 +13,17 @@ interface StorePageProps {
   products: ProductWithUI[];
   debouncedSearchTerm: string;
   cart: CartItem[];
-  setCart: Dispatch<SetStateAction<CartItem[]>>;
+  addToCart: (product: ProductWithUI) => void;
+  removeFromCart: (productId: string) => void;
+  updateQuantity: (productId: string, newQuantity: number, products: ProductWithUI[]) => void;
+  clearCart: () => void;
   coupons: Coupon[];
   selectedCoupon: Coupon | null;
   setSelectedCoupon: Dispatch<SetStateAction<Coupon | null>>;
   addNotification: AddNotification;
 }
 
-const StorePage = ({ products, debouncedSearchTerm, cart, setCart, coupons, selectedCoupon, setSelectedCoupon, addNotification }: StorePageProps) => {
+const StorePage = ({ products, debouncedSearchTerm, cart, addToCart, removeFromCart, updateQuantity, clearCart, coupons, selectedCoupon, setSelectedCoupon, addNotification }: StorePageProps) => {
   const totals = calculateCartTotal(cart, selectedCoupon);
 
   return (
@@ -31,13 +34,20 @@ const StorePage = ({ products, debouncedSearchTerm, cart, setCart, coupons, sele
           debouncedSearchTerm={debouncedSearchTerm}
           addNotification={addNotification}
           cart={cart}
-          setCart={setCart}
+          addToCart={addToCart}
         />
       </div>
 
       <div className='lg:col-span-1'>
         <div className='sticky top-24 space-y-4'>
-          <CartSection products={products} cart={cart} setCart={setCart} calculateItemTotal={item => calculateItemTotal(item, cart)} addNotification={addNotification} />
+          <CartSection
+            products={products}
+            cart={cart}
+            removeFromCart={removeFromCart}
+            updateQuantity={updateQuantity}
+            calculateItemTotal={item => calculateItemTotal(item, cart)}
+            addNotification={addNotification}
+          />
 
           {cart.length > 0 && (
             <>
@@ -48,7 +58,7 @@ const StorePage = ({ products, debouncedSearchTerm, cart, setCart, coupons, sele
                 setSelectedCoupon={setSelectedCoupon}
                 addNotification={addNotification}
               />
-              <PaymentSection totals={totals} addNotification={addNotification} setCart={setCart} setSelectedCoupon={setSelectedCoupon} />
+              <PaymentSection totals={totals} addNotification={addNotification} clearCart={clearCart} setSelectedCoupon={setSelectedCoupon} />
             </>
           )}
         </div>
