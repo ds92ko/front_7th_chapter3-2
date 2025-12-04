@@ -1,4 +1,4 @@
-import { ChangeEvent, FocusEvent } from 'react';
+import { ChangeEvent, FocusEvent, useCallback } from 'react';
 import Button from '../../../components/button';
 import Input from '../../../components/input';
 import Label from '../../../components/label';
@@ -17,10 +17,13 @@ interface CouponFormProps {
 }
 
 const CouponForm = ({ addCoupon, close, addNotification }: CouponFormProps) => {
-  const onSubmit = (data: Coupon) => {
-    addCoupon(data);
-    close();
-  };
+  const onSubmit = useCallback(
+    (data: Coupon) => {
+      addCoupon(data);
+      close();
+    },
+    [addCoupon, close]
+  );
 
   const { form, setForm, handleSubmit } = useForm({ initialForm, onSubmit });
 

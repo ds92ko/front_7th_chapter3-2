@@ -12,6 +12,72 @@ import { getProductFormTitle, getProductFormSubmitText, isEditingProduct } from 
 import { isNumericInput, parseNumericInput, convertPercentageToDecimal, convertDecimalToPercentage } from '../../../utils/form';
 import { initialForm, PRODUCT_VALIDATION_RULES } from '../constants/products';
 
+interface DiscountRowProps {
+  discount: { quantity: number; rate: number };
+  index: number;
+  form: ProductFormData;
+  setForm: React.Dispatch<React.SetStateAction<ProductFormData>>;
+  handleChange: {
+    discountQuantity: (e: ChangeEvent<HTMLInputElement>, index: number) => void;
+    discountRate: (e: ChangeEvent<HTMLInputElement>, index: number) => void;
+  };
+}
+
+const DiscountRow = ({ discount, index, form, setForm, handleChange }: DiscountRowProps) => {
+  return (
+    <div className='flex items-center gap-2 bg-gray-50 p-2 rounded'>
+      <Input
+        type='number'
+        value={discount.quantity}
+        onChange={e => handleChange.discountQuantity(e, index)}
+        className='w-20'
+        min='1'
+        placeholder='수량'
+      />
+      <span className='text-sm'>개 이상 구매 시</span>
+      <Input
+        type='number'
+        value={convertDecimalToPercentage(discount.rate)}
+        onChange={e => handleChange.discountRate(e, index)}
+        className='w-16'
+        min='0'
+        max='100'
+        placeholder='%'
+      />
+      <span className='text-sm'>% 할인</span>
+      <Button
+        variant='destructive'
+        type='button'
+        onClick={() => {
+          setForm({ ...form, discounts: removeDiscount(form.discounts, index) });
+        }}
+      >
+        <XIcon />
+      </Button>
+    </div>
+  );
+};
+
+interface AddDiscountButtonProps {
+  form: ProductFormData;
+  setForm: React.Dispatch<React.SetStateAction<ProductFormData>>;
+}
+
+const AddDiscountButton = ({ form, setForm }: AddDiscountButtonProps) => {
+  return (
+    <Button
+      variant='subtle'
+      type='button'
+      onClick={() => {
+        setForm({ ...form, discounts: addDefaultDiscount(form.discounts) });
+      }}
+      className='text-sm'
+    >
+      + 할인 추가
+    </Button>
+  );
+};
+
 interface ProductFormProps {
   products: ProductWithUI[];
   editingProduct: string | null;
@@ -151,47 +217,16 @@ const ProductForm = ({ products, editingProduct, setEditingProduct, addProduct, 
           <Label className='mb-2'>할인 정책</Label>
           <div className='space-y-2'>
             {form.discounts.map((discount, index) => (
-              <div key={index} className='flex items-center gap-2 bg-gray-50 p-2 rounded'>
-                <Input
-                  type='number'
-                  value={discount.quantity}
-                  onChange={e => handleChange.discountQuantity(e, index)}
-                  className='w-20'
-                  min='1'
-                  placeholder='수량'
-                />
-                <span className='text-sm'>개 이상 구매 시</span>
-                <Input
-                  type='number'
-                  value={convertDecimalToPercentage(discount.rate)}
-                  onChange={e => handleChange.discountRate(e, index)}
-                  className='w-16'
-                  min='0'
-                  max='100'
-                  placeholder='%'
-                />
-                <span className='text-sm'>% 할인</span>
-                <Button
-                  variant='destructive'
-                  type='button'
-                  onClick={() => {
-                    setForm({ ...form, discounts: removeDiscount(form.discounts, index) });
-                  }}
-                >
-                  <XIcon />
-                </Button>
-              </div>
+              <DiscountRow
+                key={index}
+                discount={discount}
+                index={index}
+                form={form}
+                setForm={setForm}
+                handleChange={handleChange}
+              />
             ))}
-            <Button
-              variant='subtle'
-              type='button'
-              onClick={() => {
-                setForm({ ...form, discounts: addDefaultDiscount(form.discounts) });
-              }}
-              className='text-sm'
-            >
-              + 할인 추가
-            </Button>
+            <AddDiscountButton form={form} setForm={setForm} />
           </div>
         </div>
 

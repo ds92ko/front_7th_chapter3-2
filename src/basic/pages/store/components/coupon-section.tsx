@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useCallback } from 'react';
+import { Dispatch, SetStateAction } from 'react';
 import Select from '../../../components/select';
 import { AddNotification } from '../../../hooks/notifications';
 import { Coupon } from '../../../types/coupons';
@@ -17,22 +17,6 @@ interface CouponSectionProps {
 }
 
 const CouponSection = ({ coupons, totals, selectedCoupon, setSelectedCoupon, addNotification }: CouponSectionProps) => {
-  const applyCoupon = useCallback(
-    (coupon: Coupon) => {
-      const currentTotal = totals.totalAfterDiscount;
-      const validation = validateCouponApplicability(coupon, currentTotal);
-
-      if (!validation.isValid) {
-        addNotification(validation.errorMessage!, 'error');
-        return;
-      }
-
-      setSelectedCoupon(coupon);
-      addNotification('쿠폰이 적용되었습니다.', 'success');
-    },
-    [addNotification, totals, setSelectedCoupon]
-  );
-
   return (
     <section className='bg-white rounded-lg border border-gray-200 p-4'>
       <div className='flex items-center justify-between mb-3'>
@@ -43,8 +27,20 @@ const CouponSection = ({ coupons, totals, selectedCoupon, setSelectedCoupon, add
           value={selectedCoupon?.code || ''}
           onChange={e => {
             const coupon = findCouponByCode(coupons, e.target.value);
-            if (coupon) applyCoupon(coupon);
-            else setSelectedCoupon(null);
+            if (coupon) {
+              const currentTotal = totals.totalAfterDiscount;
+              const validation = validateCouponApplicability(coupon, currentTotal);
+
+              if (!validation.isValid) {
+                addNotification(validation.errorMessage!, 'error');
+                return;
+              }
+
+              setSelectedCoupon(coupon);
+              addNotification('쿠폰이 적용되었습니다.', 'success');
+            } else {
+              setSelectedCoupon(null);
+            }
           }}
           options={[{ label: '쿠폰 선택', value: '' }, ...convertCouponsToOptions(coupons)]}
         />
