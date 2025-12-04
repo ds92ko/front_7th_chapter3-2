@@ -1,4 +1,4 @@
-import { ChangeEvent, FocusEvent, useEffect, useCallback } from 'react';
+import { ChangeEvent, FocusEvent, useCallback, useEffect } from 'react';
 import Button from '../../../components/button';
 import { XIcon } from '../../../components/icons';
 import Input from '../../../components/input';
@@ -6,10 +6,10 @@ import Label from '../../../components/label';
 import useForm from '../../../hooks/form';
 import { AddNotification } from '../../../hooks/notifications';
 import { ProductFormData, ProductWithUI } from '../../../types/products';
+import { addDefaultDiscount, removeDiscount } from '../../../utils/discount';
+import { convertDecimalToPercentage, convertPercentageToDecimal, isNumericInput, parseNumericInput } from '../../../utils/form';
+import { getProductFormSubmitText, getProductFormTitle, isEditingProduct } from '../../../utils/product-form';
 import { validateRange } from '../../../utils/validator';
-import { removeDiscount, addDefaultDiscount } from '../../../utils/discount';
-import { getProductFormTitle, getProductFormSubmitText, isEditingProduct } from '../../../utils/product-form';
-import { isNumericInput, parseNumericInput, convertPercentageToDecimal, convertDecimalToPercentage } from '../../../utils/form';
 import { initialForm, PRODUCT_VALIDATION_RULES } from '../constants/products';
 
 interface DiscountRowProps {
@@ -171,12 +171,6 @@ const ProductForm = ({ products, editingProduct, setEditingProduct, addProduct, 
     });
   }, [editingProduct]);
 
-  const handleCancel = useCallback(() => {
-    setEditingProduct(null);
-    resetForm();
-    close();
-  }, [setEditingProduct, resetForm, close]);
-
   return (
     <div className='p-6 border-t border-gray-200 bg-gray-50'>
       <form onSubmit={handleSubmit} className='space-y-4'>
@@ -217,21 +211,23 @@ const ProductForm = ({ products, editingProduct, setEditingProduct, addProduct, 
           <Label className='mb-2'>할인 정책</Label>
           <div className='space-y-2'>
             {form.discounts.map((discount, index) => (
-              <DiscountRow
-                key={index}
-                discount={discount}
-                index={index}
-                form={form}
-                setForm={setForm}
-                handleChange={handleChange}
-              />
+              <DiscountRow key={index} discount={discount} index={index} form={form} setForm={setForm} handleChange={handleChange} />
             ))}
             <AddDiscountButton form={form} setForm={setForm} />
           </div>
         </div>
 
         <div className='flex justify-end gap-3'>
-          <Button size='md' variant='outline' type='button' onClick={handleCancel}>
+          <Button
+            size='md'
+            variant='outline'
+            type='button'
+            onClick={() => {
+              setEditingProduct(null);
+              resetForm();
+              close();
+            }}
+          >
             취소
           </Button>
           <Button size='md' variant='primary' type='submit'>
