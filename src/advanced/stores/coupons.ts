@@ -1,10 +1,11 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { initialCoupons } from '../constants/coupons';
+import { couponsStorage } from '../storage/coupons';
 import { Coupon } from '../types/coupons';
 import { useNotifications } from './notifications';
 
-interface CouponsContext {
+export interface CouponsContext {
   coupons: Coupon[];
 }
 
@@ -67,6 +68,7 @@ export const useCoupons = create<CouponsStore>()(
     }),
     {
       name: 'coupons',
+      storage: couponsStorage,
       partialize: ({ context }) => ({ context })
     }
   )

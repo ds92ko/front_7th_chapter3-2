@@ -13,6 +13,7 @@ describe('쇼핑몰 앱 통합 테스트', () => {
   beforeEach(() => {
     // localStorage 초기화
     localStorage.clear();
+    // store 초기화
     useCart.getState().actions.clearCart();
     useCoupons.getState().actions.clearCoupons();
     useNotifications.getState().actions.clearNotifications();
@@ -422,7 +423,7 @@ describe('쇼핑몰 앱 통합 테스트', () => {
 
       // localStorage 확인
       expect(localStorage.getItem('cart')).toBeTruthy();
-      expect(JSON.parse(localStorage.getItem('cart')).state.context.cart).toHaveLength(1);
+      expect(JSON.parse(localStorage.getItem('cart'))).toHaveLength(1);
 
       // 관리자 모드로 전환하여 새 상품 추가
       fireEvent.click(screen.getByText('관리자 페이지로'));
@@ -443,7 +444,7 @@ describe('쇼핑몰 앱 통합 테스트', () => {
 
       // localStorage에 products가 저장되었는지 확인
       expect(localStorage.getItem('products')).toBeTruthy();
-      const products = JSON.parse(localStorage.getItem('products')).state.context.products;
+      const products = JSON.parse(localStorage.getItem('products'));
       expect(products.some(p => p.name === '저장 테스트')).toBe(true);
     });
 

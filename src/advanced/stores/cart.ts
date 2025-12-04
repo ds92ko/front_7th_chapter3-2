@@ -1,11 +1,12 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { addItemToCart, getRemainingStock, removeItemFromCart, updateCartItemQuantity } from '../models/cart';
+import { cartStorage } from '../storage/cart';
 import { CartItem } from '../types/carts';
 import { ProductWithUI } from '../types/products';
 import { useNotifications } from './notifications';
 
-interface CartContext {
+export interface CartContext {
   cart: CartItem[];
   totalItemCount: number;
 }
@@ -27,9 +28,7 @@ const initialContext: CartContext = {
   totalItemCount: 0
 };
 
-const calculateTotalItemCount = (cart: CartItem[]): number => {
-  return cart.reduce((sum, item) => sum + item.quantity, 0);
-};
+export const calculateTotalItemCount = (cart: CartItem[]) => cart.reduce((sum, item) => sum + item.quantity, 0);
 
 export const useCart = create<CartStore>()(
   persist(
@@ -113,6 +112,7 @@ export const useCart = create<CartStore>()(
     }),
     {
       name: 'cart',
+      storage: cartStorage,
       partialize: ({ context }) => ({ context })
     }
   )

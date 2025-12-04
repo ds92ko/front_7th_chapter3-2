@@ -1,10 +1,11 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { initialProducts } from '../constants/products';
+import { productsStorage } from '../storage/products';
 import { ProductWithUI } from '../types/products';
 import { useNotifications } from './notifications';
 
-interface ProductsContext {
+export interface ProductsContext {
   products: ProductWithUI[];
 }
 
@@ -77,6 +78,7 @@ export const useProducts = create<ProductsStore>()(
     }),
     {
       name: 'products',
+      storage: productsStorage,
       partialize: ({ context }) => ({ context })
     }
   )
