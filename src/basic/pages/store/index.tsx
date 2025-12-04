@@ -3,6 +3,7 @@ import { AddNotification } from '../../hooks/notifications';
 import { CartItem } from '../../types/carts';
 import { Coupon } from '../../types/coupons';
 import { ProductWithUI } from '../../types/products';
+import { calculateCartTotal, calculateItemTotal } from '../../models/cart';
 import CartSection from './components/cart-section';
 import CouponSection from './components/coupon-section';
 import PaymentSection from './components/payment-section';
@@ -20,56 +21,7 @@ interface StorePageProps {
 }
 
 const StorePage = ({ products, debouncedSearchTerm, cart, setCart, coupons, selectedCoupon, setSelectedCoupon, addNotification }: StorePageProps) => {
-  const getMaxApplicableDiscount = (item: CartItem): number => {
-    const { discounts } = item.product;
-    const { quantity } = item;
-
-    const baseDiscount = discounts.reduce((maxDiscount, discount) => {
-      return quantity >= discount.quantity && discount.rate > maxDiscount ? discount.rate : maxDiscount;
-    }, 0);
-
-    const hasBulkPurchase = cart.some(cartItem => cartItem.quantity >= 10);
-    if (hasBulkPurchase) {
-      return Math.min(baseDiscount + 0.05, 0.5); // 대량 구매 시 추가 5% 할인
-    }
-
-    return baseDiscount;
-  };
-  const calculateItemTotal = (item: CartItem): number => {
-    const { price } = item.product;
-    const { quantity } = item;
-    const discount = getMaxApplicableDiscount(item);
-
-    return Math.round(price * quantity * (1 - discount));
-  };
-  const calculateCartTotal = (): {
-    totalBeforeDiscount: number;
-    totalAfterDiscount: number;
-  } => {
-    let totalBeforeDiscount = 0;
-    let totalAfterDiscount = 0;
-
-    cart.forEach(item => {
-      const itemPrice = item.product.price * item.quantity;
-      totalBeforeDiscount += itemPrice;
-      totalAfterDiscount += calculateItemTotal(item);
-    });
-
-    if (selectedCoupon) {
-      if (selectedCoupon.discountType === 'amount') {
-        totalAfterDiscount = Math.max(0, totalAfterDiscount - selectedCoupon.discountValue);
-      } else {
-        totalAfterDiscount = Math.round(totalAfterDiscount * (1 - selectedCoupon.discountValue / 100));
-      }
-    }
-
-    return {
-      totalBeforeDiscount: Math.round(totalBeforeDiscount),
-      totalAfterDiscount: Math.round(totalAfterDiscount)
-    };
-  };
-
-  const totals = calculateCartTotal();
+  const totals = calculateCartTotal(cart, selectedCoupon);
 
   return (
     <div className='grid grid-cols-1 lg:grid-cols-4 gap-6'>
@@ -85,7 +37,7 @@ const StorePage = ({ products, debouncedSearchTerm, cart, setCart, coupons, sele
 
       <div className='lg:col-span-1'>
         <div className='sticky top-24 space-y-4'>
-          <CartSection products={products} cart={cart} setCart={setCart} calculateItemTotal={calculateItemTotal} addNotification={addNotification} />
+          <CartSection products={products} cart={cart} setCart={setCart} calculateItemTotal={item => calculateItemTotal(item, cart)} addNotification={addNotification} />
 
           {cart.length > 0 && (
             <>
