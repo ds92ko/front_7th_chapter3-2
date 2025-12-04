@@ -69,14 +69,15 @@ export const useCart = create<CartStore>()(
           addNotification('장바구니에 담았습니다', 'success');
         },
         removeFromCart: productId => {
-          const { cart } = get().context;
-          const updatedCart = removeItemFromCart(cart, productId);
+          set(({ context }) => {
+            const updatedCart = removeItemFromCart(context.cart, productId);
 
-          set({
-            context: {
-              cart: updatedCart,
-              totalItemCount: calculateTotalItemCount(updatedCart)
-            }
+            return {
+              context: {
+                cart: updatedCart,
+                totalItemCount: calculateTotalItemCount(updatedCart)
+              }
+            };
           });
         },
         updateQuantity: (productId, newQuantity, products) => {
@@ -96,14 +97,15 @@ export const useCart = create<CartStore>()(
             return;
           }
 
-          const { cart } = get().context;
-          const updatedCart = updateCartItemQuantity(cart, productId, newQuantity);
+          set(({ context }) => {
+            const updatedCart = updateCartItemQuantity(context.cart, productId, newQuantity);
 
-          set({
-            context: {
-              cart: updatedCart,
-              totalItemCount: calculateTotalItemCount(updatedCart)
-            }
+            return {
+              context: {
+                cart: updatedCart,
+                totalItemCount: calculateTotalItemCount(updatedCart)
+              }
+            };
           });
         },
         clearCart: () => set({ context: { ...initialContext } })
