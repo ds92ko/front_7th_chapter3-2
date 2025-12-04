@@ -13,6 +13,7 @@ interface StorePageProps {
   products: ProductWithUI[];
   debouncedSearchTerm: string;
   cart: CartItem[];
+  totalItemCount: number;
   addToCart: (product: ProductWithUI) => void;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, newQuantity: number, products: ProductWithUI[]) => void;
@@ -27,6 +28,7 @@ const StorePage = ({
   products,
   debouncedSearchTerm,
   cart,
+  totalItemCount,
   addToCart,
   removeFromCart,
   updateQuantity,
@@ -46,9 +48,15 @@ const StorePage = ({
 
       <div className='lg:col-span-1'>
         <div className='sticky top-24 space-y-4'>
-          <CartSection products={products} cart={cart} removeFromCart={removeFromCart} updateQuantity={updateQuantity} />
+          <CartSection
+            products={products}
+            cart={cart}
+            totalItemCount={totalItemCount}
+            removeFromCart={removeFromCart}
+            updateQuantity={updateQuantity}
+          />
 
-          {cart.length > 0 && (
+          {totalItemCount > 0 && (
             <>
               <CouponSection
                 coupons={coupons}

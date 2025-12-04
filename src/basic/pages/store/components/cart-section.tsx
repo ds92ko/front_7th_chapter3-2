@@ -16,6 +16,7 @@ interface CartItemProps {
 interface CartSectionProps {
   products: ProductWithUI[];
   cart: CartItemType[];
+  totalItemCount: number;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, newQuantity: number, products: ProductWithUI[]) => void;
 }
@@ -66,14 +67,14 @@ const CartItem = ({ item, cart, products, removeFromCart, updateQuantity }: Cart
   );
 };
 
-const CartSection = ({ products, cart, removeFromCart, updateQuantity }: CartSectionProps) => {
+const CartSection = ({ products, cart, totalItemCount, removeFromCart, updateQuantity }: CartSectionProps) => {
   return (
     <section className='bg-white rounded-lg border border-gray-200 p-4'>
       <h2 className='text-lg font-semibold mb-4 flex items-center'>
         <ShoppingBagIcon className='mr-2' />
         장바구니
       </h2>
-      {cart.length === 0 ? (
+      {totalItemCount === 0 ? (
         <NoResults />
       ) : (
         <div className='space-y-3'>

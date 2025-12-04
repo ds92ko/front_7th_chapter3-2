@@ -58,6 +58,7 @@ const App = () => {
         products={products}
         debouncedSearchTerm={debouncedSearchTerm}
         cart={cart}
+        totalItemCount={totalItemCount}
         addToCart={addToCart}
         removeFromCart={removeFromCart}
         updateQuantity={updateQuantity}
