@@ -1,7 +1,7 @@
-import { CartItem as CartItemType } from '../../../../types';
 import Button from '../../../components/button';
 import { ShoppingBagIcon, XIcon } from '../../../components/icons';
 import { calculateDiscountRate } from '../../../models/cart';
+import { CartItem as CartItemType } from '../../../types/carts';
 import { ProductWithUI } from '../../../types/products';
 import { formatCurrency } from '../../../utils/format';
 
