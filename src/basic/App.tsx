@@ -28,7 +28,6 @@ const App = () => {
 
   const handleSwitchToAdmin = useCallback(() => switchPage(admin), [switchPage]);
   const handleSwitchToStore = useCallback(() => switchPage(store), [switchPage]);
-  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value), []);
 
   const nav = {
     [store]: (
@@ -88,7 +87,9 @@ const App = () => {
     <div className='min-h-screen bg-gray-50'>
       <Toast notifications={notifications} onClose={removeNotification} />
       <Header nav={nav[currentPage]}>
-        {isCurrentPage(store) && <Input type='search' value={searchTerm} onChange={handleSearchChange} placeholder='상품 검색...' />}
+        {isCurrentPage(store) && (
+          <Input type='search' value={searchTerm} onChange={({ target }) => setSearchTerm(target.value)} placeholder='상품 검색...' />
+        )}
       </Header>
 
       <main className='max-w-7xl mx-auto px-4 py-8'>{page[currentPage]}</main>
