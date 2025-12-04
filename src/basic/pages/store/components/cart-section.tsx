@@ -1,6 +1,6 @@
 import Button from '../../../components/button';
 import { ShoppingBagIcon, XIcon } from '../../../components/icons';
-import { calculateDiscountRate } from '../../../models/cart';
+import { calculateDiscountRate, calculateItemTotal } from '../../../models/cart';
 import { CartItem as CartItemType } from '../../../types/carts';
 import { ProductWithUI } from '../../../types/products';
 import { formatCurrency } from '../../../utils/format';
@@ -11,7 +11,6 @@ interface CartItemProps {
   products: ProductWithUI[];
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, newQuantity: number, products: ProductWithUI[]) => void;
-  calculateItemTotal: (item: CartItemType) => number;
 }
 
 interface CartSectionProps {
@@ -19,7 +18,6 @@ interface CartSectionProps {
   cart: CartItemType[];
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, newQuantity: number, products: ProductWithUI[]) => void;
-  calculateItemTotal: (item: CartItemType) => number;
 }
 
 const NoResults = () => {
@@ -31,8 +29,8 @@ const NoResults = () => {
   );
 };
 
-const CartItem = ({ item, cart, products, removeFromCart, updateQuantity, calculateItemTotal }: CartItemProps) => {
-  const itemTotal = calculateItemTotal(item);
+const CartItem = ({ item, cart, products, removeFromCart, updateQuantity }: CartItemProps) => {
+  const itemTotal = calculateItemTotal(item, cart);
   const discountRate = calculateDiscountRate(item, cart);
 
   return (
@@ -68,7 +66,7 @@ const CartItem = ({ item, cart, products, removeFromCart, updateQuantity, calcul
   );
 };
 
-const CartSection = ({ products, cart, removeFromCart, updateQuantity, calculateItemTotal }: CartSectionProps) => {
+const CartSection = ({ products, cart, removeFromCart, updateQuantity }: CartSectionProps) => {
   return (
     <section className='bg-white rounded-lg border border-gray-200 p-4'>
       <h2 className='text-lg font-semibold mb-4 flex items-center'>
@@ -87,7 +85,6 @@ const CartSection = ({ products, cart, removeFromCart, updateQuantity, calculate
               products={products}
               removeFromCart={removeFromCart}
               updateQuantity={updateQuantity}
-              calculateItemTotal={calculateItemTotal}
             />
           ))}
         </div>

@@ -1,9 +1,9 @@
-import { Dispatch, SetStateAction, useMemo } from 'react';
+import { Dispatch, SetStateAction } from 'react';
 import { AddNotification } from '../../hooks/notifications';
+import { calculateCartTotal } from '../../models/cart';
 import { CartItem } from '../../types/carts';
 import { Coupon } from '../../types/coupons';
 import { ProductWithUI } from '../../types/products';
-import { calculateCartTotal, calculateItemTotal } from '../../models/cart';
 import CartSection from './components/cart-section';
 import CouponSection from './components/coupon-section';
 import PaymentSection from './components/payment-section';
@@ -23,30 +23,30 @@ interface StorePageProps {
   addNotification: AddNotification;
 }
 
-const StorePage = ({ products, debouncedSearchTerm, cart, addToCart, removeFromCart, updateQuantity, clearCart, coupons, selectedCoupon, setSelectedCoupon, addNotification }: StorePageProps) => {
+const StorePage = ({
+  products,
+  debouncedSearchTerm,
+  cart,
+  addToCart,
+  removeFromCart,
+  updateQuantity,
+  clearCart,
+  coupons,
+  selectedCoupon,
+  setSelectedCoupon,
+  addNotification
+}: StorePageProps) => {
   const totals = calculateCartTotal(cart, selectedCoupon);
-  const calculateItemTotalMemo = useMemo(() => (item: CartItem) => calculateItemTotal(item, cart), [cart]);
 
   return (
     <div className='grid grid-cols-1 lg:grid-cols-4 gap-6'>
       <div className='lg:col-span-3'>
-        <ProductSection
-          products={products}
-          debouncedSearchTerm={debouncedSearchTerm}
-          cart={cart}
-          addToCart={addToCart}
-        />
+        <ProductSection products={products} debouncedSearchTerm={debouncedSearchTerm} cart={cart} addToCart={addToCart} />
       </div>
 
       <div className='lg:col-span-1'>
         <div className='sticky top-24 space-y-4'>
-          <CartSection
-            products={products}
-            cart={cart}
-            removeFromCart={removeFromCart}
-            updateQuantity={updateQuantity}
-            calculateItemTotal={calculateItemTotalMemo}
-          />
+          <CartSection products={products} cart={cart} removeFromCart={removeFromCart} updateQuantity={updateQuantity} />
 
           {cart.length > 0 && (
             <>
