@@ -1,8 +1,8 @@
 import { Dispatch, SetStateAction } from 'react';
 import Button from '../../../components/button';
-import { AddNotification } from '../../../hooks/notifications';
+import { calculateDiscountAmount, hasDiscount } from '../../../models/cart';
+import { notificationsActions } from '../../../stores/notifications';
 import { Coupon } from '../../../types/coupons';
-import { hasDiscount, calculateDiscountAmount } from '../../../models/cart';
 import { formatCurrency } from '../../../utils/format';
 import { generateOrderNumber } from '../../../utils/order';
 
@@ -11,12 +11,13 @@ interface PaymentSectionProps {
     totalBeforeDiscount: number;
     totalAfterDiscount: number;
   };
-  addNotification: AddNotification;
   clearCart: () => void;
   setSelectedCoupon: Dispatch<SetStateAction<Coupon | null>>;
 }
 
-const PaymentSection = ({ totals, addNotification, clearCart, setSelectedCoupon }: PaymentSectionProps) => {
+const PaymentSection = ({ totals, clearCart, setSelectedCoupon }: PaymentSectionProps) => {
+  const { addNotification } = notificationsActions();
+
   return (
     <section className='bg-white rounded-lg border border-gray-200 p-4'>
       <h3 className='text-lg font-semibold mb-4'>결제 정보</h3>

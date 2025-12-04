@@ -1,4 +1,3 @@
-import { AddNotification } from '../../../hooks/notifications';
 import useToggle from '../../../hooks/toggle';
 import { Coupon } from '../../../types/coupons';
 import CouponForm from './coupon-form';
@@ -8,10 +7,9 @@ interface CouponSectionProps {
   coupons: Coupon[];
   addCoupon: (coupon: Coupon) => void;
   deleteCoupon: (couponCode: string) => void;
-  addNotification: AddNotification;
 }
 
-const CouponSection = ({ coupons, addCoupon, deleteCoupon, addNotification }: CouponSectionProps) => {
+const CouponSection = ({ coupons, addCoupon, deleteCoupon }: CouponSectionProps) => {
   const { isOpen, close, toggle } = useToggle(false);
 
   return (
@@ -21,7 +19,7 @@ const CouponSection = ({ coupons, addCoupon, deleteCoupon, addNotification }: Co
       </div>
       <div className='p-6'>
         <CouponList coupons={coupons} deleteCoupon={deleteCoupon} toggle={toggle} />
-        {isOpen && <CouponForm addCoupon={addCoupon} close={close} addNotification={addNotification} />}
+        {isOpen && <CouponForm addCoupon={addCoupon} close={close} />}
       </div>
     </section>
   );

@@ -1,9 +1,9 @@
 import { useCallback, useMemo } from 'react';
 import { addItemToCart, getRemainingStock, removeItemFromCart, updateCartItemQuantity } from '../models/cart';
+import { notificationsActions } from '../stores/notifications';
 import { CartItem } from '../types/carts';
 import { ProductWithUI } from '../types/products';
 import useLocalStorage from './local-storage';
-import { AddNotification } from './notifications';
 
 export interface UseCartReturn {
   cart: CartItem[];
@@ -14,7 +14,8 @@ export interface UseCartReturn {
   clearCart: () => void;
 }
 
-const useCart = (addNotification: AddNotification): UseCartReturn => {
+const useCart = (): UseCartReturn => {
+  const { addNotification } = notificationsActions();
   const [cart, setCart] = useLocalStorage<CartItem[]>('cart', []);
 
   const totalItemCount = useMemo(() => {

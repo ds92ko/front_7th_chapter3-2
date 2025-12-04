@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import Button from '../../../components/button';
-import { AddNotification } from '../../../hooks/notifications';
 import useToggle from '../../../hooks/toggle';
 import { ProductWithUI } from '../../../types/products';
 import ProductForm from './product-form';
@@ -11,10 +10,9 @@ interface ProductSectionProps {
   addProduct: (product: Omit<ProductWithUI, 'id'>) => void;
   updateProduct: (productId: string, updates: Partial<ProductWithUI>) => void;
   deleteProduct: (productId: string) => void;
-  addNotification: AddNotification;
 }
 
-const ProductSection = ({ products, addProduct, updateProduct, deleteProduct, addNotification }: ProductSectionProps) => {
+const ProductSection = ({ products, addProduct, updateProduct, deleteProduct }: ProductSectionProps) => {
   const { isOpen, open, close } = useToggle(false);
   const [editingProduct, setEditingProduct] = useState<string | null>(null);
 
@@ -44,7 +42,6 @@ const ProductSection = ({ products, addProduct, updateProduct, deleteProduct, ad
           addProduct={addProduct}
           updateProduct={updateProduct}
           close={close}
-          addNotification={addNotification}
         />
       )}
     </section>

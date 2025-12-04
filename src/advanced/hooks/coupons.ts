@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 import { initialCoupons } from '../constants/coupons';
+import { notificationsActions } from '../stores/notifications';
 import { Coupon } from '../types/coupons';
 import useLocalStorage from './local-storage';
-import { AddNotification } from './notifications';
 
 interface UseCouponsReturn {
   coupons: Coupon[];
@@ -10,7 +10,8 @@ interface UseCouponsReturn {
   deleteCoupon: (couponCode: string) => void;
 }
 
-const useCoupons = (addNotification: AddNotification): UseCouponsReturn => {
+const useCoupons = (): UseCouponsReturn => {
+  const { addNotification } = notificationsActions();
   const [coupons, setCoupons] = useLocalStorage<Coupon[]>('coupons', initialCoupons);
 
   const addCoupon = useCallback(

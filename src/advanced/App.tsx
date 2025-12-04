@@ -8,7 +8,6 @@ import { PAGES } from './constants/pages';
 import useCart from './hooks/cart';
 import useCoupons from './hooks/coupons';
 import useDebounce from './hooks/debounce';
-import useNotifications from './hooks/notifications';
 import usePage from './hooks/pages';
 import useProducts from './hooks/products';
 import useSelectedCoupon from './hooks/selected-coupon';
@@ -18,10 +17,9 @@ import StorePage from './pages/store';
 const App = () => {
   const { store, admin } = PAGES;
   const { currentPage, switchPage, isCurrentPage } = usePage(store);
-  const { notifications, addNotification, removeNotification } = useNotifications();
-  const { products, addProduct, updateProduct, deleteProduct } = useProducts(addNotification);
-  const { coupons, addCoupon, deleteCoupon } = useCoupons(addNotification);
-  const { cart, totalItemCount, addToCart, removeFromCart, updateQuantity, clearCart } = useCart(addNotification);
+  const { products, addProduct, updateProduct, deleteProduct } = useProducts();
+  const { coupons, addCoupon, deleteCoupon } = useCoupons();
+  const { cart, totalItemCount, addToCart, removeFromCart, updateQuantity, clearCart } = useCart();
   const [selectedCoupon, setSelectedCoupon] = useSelectedCoupon(coupons);
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm);
@@ -71,14 +69,12 @@ const App = () => {
           coupons={coupons}
           selectedCoupon={selectedCoupon}
           setSelectedCoupon={setSelectedCoupon}
-          addNotification={addNotification}
         />
       ),
       [admin]: (
         <AdminPage
           products={products}
           coupons={coupons}
-          addNotification={addNotification}
           addProduct={addProduct}
           updateProduct={updateProduct}
           deleteProduct={deleteProduct}
@@ -101,7 +97,6 @@ const App = () => {
       coupons,
       selectedCoupon,
       setSelectedCoupon,
-      addNotification,
       addProduct,
       updateProduct,
       deleteProduct,
@@ -112,7 +107,7 @@ const App = () => {
 
   return (
     <div className='min-h-screen bg-gray-50'>
-      <Toast notifications={notifications} onClose={removeNotification} />
+      <Toast />
       <Header nav={nav[currentPage]}>
         {isCurrentPage(store) && <Input type='search' value={searchTerm} onChange={handleSearchChange} placeholder='상품 검색...' />}
       </Header>

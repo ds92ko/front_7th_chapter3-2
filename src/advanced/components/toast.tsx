@@ -1,12 +1,10 @@
-import { Notification } from '../types/notifications';
+import { notificationsActions, notificationsContext } from '../stores/notifications';
 import { XIcon } from './icons';
 
-interface ToastProps {
-  notifications: Notification[];
-  onClose: (id: string) => void;
-}
+const Toast = () => {
+  const { notifications } = notificationsContext();
+  const { removeNotification } = notificationsActions();
 
-const Toast = ({ notifications, onClose }: ToastProps) => {
   if (!notifications.length) return null;
 
   return (
@@ -19,7 +17,7 @@ const Toast = ({ notifications, onClose }: ToastProps) => {
           }`}
         >
           <span className='mr-2'>{notif.message}</span>
-          <button onClick={() => onClose(notif.id)} className='text-white hover:text-gray-200'>
+          <button onClick={() => removeNotification(notif.id)} className='text-white hover:text-gray-200'>
             <XIcon />
           </button>
         </div>

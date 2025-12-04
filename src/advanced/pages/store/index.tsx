@@ -1,5 +1,4 @@
 import { Dispatch, SetStateAction } from 'react';
-import { AddNotification } from '../../hooks/notifications';
 import { calculateCartTotal } from '../../models/cart';
 import { CartItem } from '../../types/carts';
 import { Coupon } from '../../types/coupons';
@@ -21,7 +20,6 @@ interface StorePageProps {
   coupons: Coupon[];
   selectedCoupon: Coupon | null;
   setSelectedCoupon: Dispatch<SetStateAction<Coupon | null>>;
-  addNotification: AddNotification;
 }
 
 const StorePage = ({
@@ -35,8 +33,7 @@ const StorePage = ({
   clearCart,
   coupons,
   selectedCoupon,
-  setSelectedCoupon,
-  addNotification
+  setSelectedCoupon
 }: StorePageProps) => {
   const totals = calculateCartTotal(cart, selectedCoupon);
 
@@ -58,14 +55,8 @@ const StorePage = ({
 
           {totalItemCount > 0 && (
             <>
-              <CouponSection
-                coupons={coupons}
-                totals={totals}
-                selectedCoupon={selectedCoupon}
-                setSelectedCoupon={setSelectedCoupon}
-                addNotification={addNotification}
-              />
-              <PaymentSection totals={totals} addNotification={addNotification} clearCart={clearCart} setSelectedCoupon={setSelectedCoupon} />
+              <CouponSection coupons={coupons} totals={totals} selectedCoupon={selectedCoupon} setSelectedCoupon={setSelectedCoupon} />
+              <PaymentSection totals={totals} clearCart={clearCart} setSelectedCoupon={setSelectedCoupon} />
             </>
           )}
         </div>

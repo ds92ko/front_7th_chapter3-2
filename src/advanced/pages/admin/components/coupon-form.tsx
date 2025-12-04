@@ -4,7 +4,7 @@ import Input from '../../../components/input';
 import Label from '../../../components/label';
 import Select from '../../../components/select';
 import useForm from '../../../hooks/form';
-import { AddNotification } from '../../../hooks/notifications';
+import { notificationsActions } from '../../../stores/notifications';
 import { Coupon, DiscountType } from '../../../types/coupons';
 import { isNumericInput, parseNumericInput, toUpperCase as toUpperCaseUtil } from '../../../utils/form';
 import { validateRange } from '../../../utils/validator';
@@ -13,10 +13,11 @@ import { COUPON_VALIDATION_RULES, DISCOUNT_TYPE_LABELS, DISCOUNT_TYPE_PLACEHOLDE
 interface CouponFormProps {
   addCoupon: (coupon: Coupon) => void;
   close: () => void;
-  addNotification: AddNotification;
 }
 
-const CouponForm = ({ addCoupon, close, addNotification }: CouponFormProps) => {
+const CouponForm = ({ addCoupon, close }: CouponFormProps) => {
+  const { addNotification } = notificationsActions();
+
   const onSubmit = useCallback(
     (data: Coupon) => {
       addCoupon(data);

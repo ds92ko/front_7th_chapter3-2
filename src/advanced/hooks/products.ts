@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 import { initialProducts } from '../constants/products';
+import { notificationsActions } from '../stores/notifications';
 import { ProductWithUI } from '../types/products';
 import useLocalStorage from './local-storage';
-import { AddNotification } from './notifications';
 
 interface UseProductsReturn {
   products: ProductWithUI[];
@@ -11,7 +11,8 @@ interface UseProductsReturn {
   deleteProduct: (productId: string) => void;
 }
 
-const useProducts = (addNotification: AddNotification): UseProductsReturn => {
+const useProducts = (): UseProductsReturn => {
+  const { addNotification } = notificationsActions();
   const [products, setProducts] = useLocalStorage<ProductWithUI[]>('products', initialProducts);
 
   const addProduct = useCallback(

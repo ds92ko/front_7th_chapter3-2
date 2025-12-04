@@ -4,11 +4,10 @@ import { XIcon } from '../../../components/icons';
 import Input from '../../../components/input';
 import Label from '../../../components/label';
 import useForm from '../../../hooks/form';
-import { AddNotification } from '../../../hooks/notifications';
-import { addDefaultDiscount, removeDiscount } from '../../../models/product';
+import { addDefaultDiscount, getProductFormSubmitText, getProductFormTitle, isEditingProduct, removeDiscount } from '../../../models/product';
+import { notificationsActions } from '../../../stores/notifications';
 import { ProductFormData, ProductWithUI } from '../../../types/products';
 import { convertDecimalToPercentage, convertPercentageToDecimal, isNumericInput, parseNumericInput } from '../../../utils/form';
-import { getProductFormSubmitText, getProductFormTitle, isEditingProduct } from '../../../models/product';
 import { validateRange } from '../../../utils/validator';
 import { initialForm, PRODUCT_VALIDATION_RULES } from '../constants/products';
 
@@ -83,10 +82,11 @@ interface ProductFormProps {
   addProduct: (product: Omit<ProductWithUI, 'id'>) => void;
   updateProduct: (productId: string, updates: Partial<ProductWithUI>) => void;
   close: () => void;
-  addNotification: AddNotification;
 }
 
-const ProductForm = ({ products, editingProduct, setEditingProduct, addProduct, updateProduct, close, addNotification }: ProductFormProps) => {
+const ProductForm = ({ products, editingProduct, setEditingProduct, addProduct, updateProduct, close }: ProductFormProps) => {
+  const { addNotification } = notificationsActions();
+
   const onSubmit = useCallback(
     (data: ProductFormData) => {
       if (isEditingProduct(editingProduct)) {

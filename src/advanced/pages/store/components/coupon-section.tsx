@@ -1,8 +1,8 @@
 import { Dispatch, SetStateAction } from 'react';
 import Select from '../../../components/select';
-import { AddNotification } from '../../../hooks/notifications';
-import { Coupon } from '../../../types/coupons';
 import { convertCouponsToOptions, findCouponByCode, validateCouponApplicability } from '../../../models/coupon';
+import { notificationsActions } from '../../../stores/notifications';
+import { Coupon } from '../../../types/coupons';
 
 interface CouponSectionProps {
   coupons: Coupon[];
@@ -12,10 +12,11 @@ interface CouponSectionProps {
   };
   selectedCoupon: Coupon | null;
   setSelectedCoupon: Dispatch<SetStateAction<Coupon | null>>;
-  addNotification: AddNotification;
 }
 
-const CouponSection = ({ coupons, totals, selectedCoupon, setSelectedCoupon, addNotification }: CouponSectionProps) => {
+const CouponSection = ({ coupons, totals, selectedCoupon, setSelectedCoupon }: CouponSectionProps) => {
+  const { addNotification } = notificationsActions();
+
   return (
     <section className='bg-white rounded-lg border border-gray-200 p-4'>
       <div className='flex items-center justify-between mb-3'>
