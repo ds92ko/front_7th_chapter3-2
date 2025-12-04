@@ -16,3 +16,12 @@ export const getFirstDiscount = (product: Product): { quantity: number; rate: nu
   return product.discounts[0];
 };
 
+/**
+ * 상품의 첫 번째 할인 정보를 표시용 문자열로 포맷팅합니다.
+ */
+export const formatFirstDiscount = (product: Product): string | null => {
+  const firstDiscount = getFirstDiscount(product);
+  if (!firstDiscount) return null;
+  return `${firstDiscount.quantity}개 이상 구매시 할인 ${firstDiscount.rate * 100}%`;
+};
+

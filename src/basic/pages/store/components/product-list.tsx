@@ -3,8 +3,8 @@ import { ImageIcon } from '../../../components/icons';
 import { CartItem } from '../../../types/carts';
 import { ProductWithUI } from '../../../types/products';
 import { getRemainingStock } from '../../../models/cart';
-import { getMaxDiscountRate, getFirstDiscount } from '../../../models/product';
-import { filterProductsBySearchTerm } from '../../../utils/product';
+import { getMaxDiscountRate, formatFirstDiscount } from '../../../models/product';
+import { filterProductsBySearchTerm, getStockStatusText, getCartButtonText } from '../../../utils/product';
 import { formatPrice } from '../../../utils/format';
 
 interface NoResultsProps {
@@ -63,25 +63,20 @@ const ProductItem = ({ product, cart, addToCart }: ProductItemProps) => {
               isSoldOut: remainingStock <= 0
             })}
           </p>
-          {(() => {
-            const firstDiscount = getFirstDiscount(product);
-            return firstDiscount ? (
-              <p className='text-xs text-gray-500'>
-                {firstDiscount.quantity}개 이상 구매시 할인 {firstDiscount.rate * 100}%
-              </p>
-            ) : null;
-          })()}
+          {formatFirstDiscount(product) && <p className='text-xs text-gray-500'>{formatFirstDiscount(product)}</p>}
         </div>
 
         {/* 재고 상태 */}
         <div className='mb-3'>
-          {remainingStock <= 5 && remainingStock > 0 && <p className='text-xs text-red-600 font-medium'>품절임박! {remainingStock}개 남음</p>}
-          {remainingStock > 5 && <p className='text-xs text-gray-500'>재고 {remainingStock}개</p>}
+          {(() => {
+            const stockStatus = getStockStatusText(remainingStock);
+            return stockStatus ? <p className={stockStatus.className}>{stockStatus.text}</p> : null;
+          })()}
         </div>
 
         {/* 장바구니 버튼 */}
         <Button size='lg' variant='dark' onClick={() => addToCart(product)} disabled={remainingStock <= 0} className={'w-full'}>
-          {remainingStock <= 0 ? '품절' : '장바구니 담기'}
+          {getCartButtonText(remainingStock)}
         </Button>
       </div>
     </div>

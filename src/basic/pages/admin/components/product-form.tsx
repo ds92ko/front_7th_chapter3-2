@@ -7,6 +7,7 @@ import useForm from '../../../hooks/form';
 import { AddNotification } from '../../../hooks/notifications';
 import { ProductFormData, ProductWithUI } from '../../../types/products';
 import { validateRange } from '../../../utils/validator';
+import { removeDiscount, addDefaultDiscount } from '../../../utils/discount';
 import { initialForm, PRODUCT_VALIDATION_RULES } from '../constants/products';
 
 interface ProductFormProps {
@@ -164,8 +165,7 @@ const ProductForm = ({ products, editingProduct, setEditingProduct, addProduct, 
                   variant='destructive'
                   type='button'
                   onClick={() => {
-                    const newDiscounts = form.discounts.filter((_, i) => i !== index);
-                    setForm({ ...form, discounts: newDiscounts });
+                    setForm({ ...form, discounts: removeDiscount(form.discounts, index) });
                   }}
                 >
                   <XIcon />
@@ -175,12 +175,9 @@ const ProductForm = ({ products, editingProduct, setEditingProduct, addProduct, 
             <Button
               variant='subtle'
               type='button'
-              onClick={() =>
-                setForm({
-                  ...form,
-                  discounts: [...form.discounts, { quantity: 10, rate: 0.1 }]
-                })
-              }
+              onClick={() => {
+                setForm({ ...form, discounts: addDefaultDiscount(form.discounts) });
+              }}
               className='text-sm'
             >
               + 할인 추가

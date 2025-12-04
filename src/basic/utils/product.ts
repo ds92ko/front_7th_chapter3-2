@@ -23,3 +23,23 @@ export const getStockStatusStyle = (stock: number): string => {
   return 'bg-red-100 text-red-800';
 };
 
+/**
+ * 재고 상태에 따른 표시 텍스트를 반환합니다.
+ */
+export const getStockStatusText = (remainingStock: number): { text: string; className: string } | null => {
+  if (remainingStock <= 5 && remainingStock > 0) {
+    return { text: `품절임박! ${remainingStock}개 남음`, className: 'text-xs text-red-600 font-medium' };
+  }
+  if (remainingStock > 5) {
+    return { text: `재고 ${remainingStock}개`, className: 'text-xs text-gray-500' };
+  }
+  return null;
+};
+
+/**
+ * 장바구니 버튼 텍스트를 반환합니다.
+ */
+export const getCartButtonText = (remainingStock: number): string => {
+  return remainingStock <= 0 ? '품절' : '장바구니 담기';
+};
+

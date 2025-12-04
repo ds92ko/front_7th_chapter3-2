@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, useMemo } from 'react';
 import { AddNotification } from '../../hooks/notifications';
 import { CartItem } from '../../types/carts';
 import { Coupon } from '../../types/coupons';
@@ -25,6 +25,7 @@ interface StorePageProps {
 
 const StorePage = ({ products, debouncedSearchTerm, cart, addToCart, removeFromCart, updateQuantity, clearCart, coupons, selectedCoupon, setSelectedCoupon, addNotification }: StorePageProps) => {
   const totals = calculateCartTotal(cart, selectedCoupon);
+  const calculateItemTotalMemo = useMemo(() => (item: CartItem) => calculateItemTotal(item, cart), [cart]);
 
   return (
     <div className='grid grid-cols-1 lg:grid-cols-4 gap-6'>
@@ -45,7 +46,7 @@ const StorePage = ({ products, debouncedSearchTerm, cart, addToCart, removeFromC
             cart={cart}
             removeFromCart={removeFromCart}
             updateQuantity={updateQuantity}
-            calculateItemTotal={item => calculateItemTotal(item, cart)}
+            calculateItemTotal={calculateItemTotalMemo}
             addNotification={addNotification}
           />
 
