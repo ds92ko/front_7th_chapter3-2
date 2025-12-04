@@ -1,9 +1,10 @@
 import Button from '../../../components/button';
 import { ShoppingBagIcon, XIcon } from '../../../components/icons';
 import { AddNotification } from '../../../hooks/notifications';
+import { calculateDiscountRate } from '../../../models/cart';
 import { CartItem } from '../../../types/carts';
 import { ProductWithUI } from '../../../types/products';
-import { calculateDiscountRate } from '../../../models/cart';
+import { formatCurrency } from '../../../utils/format';
 
 interface CartSectionProps {
   products: ProductWithUI[];
@@ -24,7 +25,6 @@ const NoResults = () => {
 };
 
 const CartSection = ({ products, cart, removeFromCart, updateQuantity, calculateItemTotal }: CartSectionProps) => {
-
   return (
     <section className='bg-white rounded-lg border border-gray-200 p-4'>
       <h2 className='text-lg font-semibold mb-4 flex items-center'>
@@ -65,7 +65,7 @@ const CartSection = ({ products, cart, removeFromCart, updateQuantity, calculate
                   </div>
                   <div className='text-right'>
                     {discountRate > 0 && <span className='text-xs text-red-500 font-medium block'>-{discountRate}%</span>}
-                    <p className='text-sm font-medium text-gray-900'>{Math.round(itemTotal).toLocaleString()}원</p>
+                    <p className='text-sm font-medium text-gray-900'>{formatCurrency(Math.round(itemTotal), { suffix: '원' })}</p>
                   </div>
                 </div>
               </div>

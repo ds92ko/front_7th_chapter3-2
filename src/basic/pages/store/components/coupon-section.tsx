@@ -3,6 +3,7 @@ import Select from '../../../components/select';
 import { AddNotification } from '../../../hooks/notifications';
 import { Coupon } from '../../../types/coupons';
 import { validateCouponApplicability } from '../../../models/coupon';
+import { findCouponByCode, convertCouponsToOptions } from '../../../utils/coupon';
 
 interface CouponSectionProps {
   coupons: Coupon[];
@@ -41,19 +42,11 @@ const CouponSection = ({ coupons, totals, selectedCoupon, setSelectedCoupon, add
         <Select
           value={selectedCoupon?.code || ''}
           onChange={e => {
-            const coupon = coupons.find(c => c.code === e.target.value);
+            const coupon = findCouponByCode(coupons, e.target.value);
             if (coupon) applyCoupon(coupon);
             else setSelectedCoupon(null);
           }}
-          options={[
-            { label: '쿠폰 선택', value: '' },
-            ...coupons.map(coupon => ({
-              label: `${coupon.name} (${
-                coupon.discountType === 'amount' ? `${coupon.discountValue.toLocaleString()}원` : `${coupon.discountValue}%`
-              })`,
-              value: coupon.code
-            }))
-          ]}
+          options={[{ label: '쿠폰 선택', value: '' }, ...convertCouponsToOptions(coupons)]}
         />
       )}
     </section>
